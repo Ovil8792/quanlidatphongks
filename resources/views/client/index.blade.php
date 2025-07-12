@@ -188,9 +188,83 @@
                 </section> -->
     <!-- Services Section End -->
     <br>
+   
+<section class="voucher-section py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4 text-center">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <span>Ưu đãi & Giảm giá</span>
+                    <h2>Những gói quà và mã ưu đãi chất lượng dành cho bạn</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {{-- Voucher 1 --}}
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title fw-bold">Giảm 20% cho đơn từ 1.000.000đ</h5>
+                            <p class="card-text text-muted mb-2">HSD: 31/07/2025</p>
+                            <p class="text-muted small">Áp dụng cho khách hàng mới. Không áp dụng chung với khuyến mãi khác.</p>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-dark px-3 py-2 border rounded-pill" id="code1">WELCOME20</span>
+                            <button onclick="copyVoucher('WELCOME20')" class="btn btn-sm btn-outline-primary">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Voucher 2 --}}
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title fw-bold">Giảm 10% khi thanh toán qua MOMO</h5>
+                            <p class="card-text text-muted mb-2">HSD: 15/08/2025</p>
+                            <p class="text-muted small">Áp dụng mọi đơn hàng, không giới hạn giá trị tối thiểu.</p>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-dark px-3 py-2 border rounded-pill" id="code2">MOMO10</span>
+                            <button onclick="copyVoucher('MOMO10')" class="btn btn-sm btn-outline-primary">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Voucher 3 --}}
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title fw-bold">Tặng 50k cho lần đặt phòng đầu tiên</h5>
+                            <p class="card-text text-muted mb-2">HSD: 01/09/2025</p>
+                            <p class="text-muted small">Chỉ áp dụng cho tài khoản đăng ký mới trong vòng 7 ngày.</p>
+                        </div>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-dark px-3 py-2 border rounded-pill" id="code3">FIRST50</span>
+                            <button onclick="copyVoucher('FIRST50')" class="btn btn-sm btn-outline-primary">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
     <!-- Home Room Section Begin -->
     <section class="hp-room-section">
         <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="section-title">
+                        <span>Phòng chất lượng</span>
+                        <h2>Các căn phòng được đặt nhiều nhất</h2>
+                    </div>
+                </div>
+            </div>
             <div class="hp-room-items">
                 <div class="row">
                     @foreach ($room as $k)
@@ -295,8 +369,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="section-title">
-                        <span>Hotel News</span>
-                        <h2>Our Blog & Event</h2>
+                        <span>Tin tức khách sạn</span>
+                        <h2>Tin tức mới nhất về các khách sạn của chúng tôi</h2>
                     </div>
                 </div>
             </div>
@@ -350,6 +424,108 @@
         </div>
     </section>
     <!-- Blog Section End -->
+
+<section class="top-hotel-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <span>Khách sạn hàng đầu</span>
+                    <h2>Những khách sạn được săn đón nhất</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+                <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-1.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Travel Trip</span>
+                            <h4><a href="#">Tremblant In Canada</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 15th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-2.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Camping</span>
+                            <h4><a href="#">Choosing A Static Caravan</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 15th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-3.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Event</span>
+                            <h4><a href="#">Copper Canyon</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 21th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+                
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-1.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Travel Trip</span>
+                            <h4><a href="#">Tremblant In Canada</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 15th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-2.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Camping</span>
+                            <h4><a href="#">Choosing A Static Caravan</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 15th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-3.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Event</span>
+                            <h4><a href="#">Copper Canyon</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 21th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-1.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Travel Trip</span>
+                            <h4><a href="#">Tremblant In Canada</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 15th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-2.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Camping</span>
+                            <h4><a href="#">Choosing A Static Caravan</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 15th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="blog-item set-bg" data-setbg="img/blog/blog-3.jpg">
+                        <div class="bi-text">
+                            <span class="b-tag">Event</span>
+                            <h4><a href="#">Copper Canyon</a></h4>
+                            <div class="b-time"><i class="icon_clock_alt"></i> 21th April, 2019</div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</section>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
             const customInput = document.getElementById("customGuest");

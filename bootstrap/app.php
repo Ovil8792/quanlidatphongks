@@ -20,8 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {      
         $middleware->prepend(\Illuminate\Session\Middleware\StartSession::class);
-                // session::put(["locale"=>"vi"]);
+        $middleware->encryptCookies(
+            ['locale']
+        );
         $middleware->append(\App\Http\Middleware\SetLocale::class);
+        
 
         $middleware->alias([
             'admin' => CheckAdmin::class,
