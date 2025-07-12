@@ -2186,8 +2186,6 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property bool $isInUse
      * @property string $amenities
-     * @property bool $rating
-     * @property string|null $review
      * @property mixed $hotel_id
      * @property string|null $description
      * @property mixed $base_price
@@ -2204,8 +2202,6 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereBasePrice($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereDescription($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereHotelId($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereReview($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereRating($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereAmenities($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereIsinuse($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Room>|Room whereCreatedAt($value)

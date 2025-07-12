@@ -10,6 +10,9 @@
                     <div class="contact-text">
                         <h2>Thông tin liên hệ</h2>
                         <p>Quý khách vui lòng nhập thông tin liên hệ để chúng tôi có thể kịp thời hỗ trợ</p>
+                        
+                        <p>Hoặc bạn có thể trực tiếp đến với River New của chúng tôi theo địa chỉ dưới đây.</p>
+                        <p>Chúng tôi luôn có mặt hỗ trợ bạn 24/7!</p>
                         <table>
                             <tbody>
                                 <tr>

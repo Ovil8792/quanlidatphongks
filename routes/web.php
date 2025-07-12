@@ -15,18 +15,28 @@ use App\Http\Controllers\User\ContactController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\RoomController as UserRoom;
 use App\Http\Controllers\User\PaymentController;
+use Illuminate\Support\Facades\Cookie;
 // use Faker\Provider\ar_EG\Payment;
 
-Route::get('lang/{locale}', function ($locale) {
+Route::get("/privacy-policy",[CustomerController::class,"privacyPolicy"])->name("client.privacy-policy");
+Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['vi', 'en'])) {
+        // Ghi vào session
         session(['locale' => $locale]);
+
+        // Tạo cookie sống 1 năm
+        $cookie = Cookie::make('locale', $locale, 60 * 24 * 365); // 1 năm
+
+        // Quay về trang trước và gắn cookie
+        return redirect()->back()->withCookie($cookie);
     }
-    return redirect()->back();
+
+    return response("Invalid locale", 400);
 });
 //middleware('auth')->
 Route::prefix("/")->group(function () {
     Route::get('/', [CustomerController::class, "index"])->name("client.index");
-    Route::get("/about", [CustomerController::class, "about"])->name("client.about");
+    Route::get("/about-us", [CustomerController::class, "about"])->name("client.about");
     Route::get("/contact", [CustomerController::class, "contact"])->name("client.contact");
     Route::post("/sendcontact", [ContactController::class, "store"])->name("client.postcontact");
     Route::get("/rooms",[UserRoom::class,"index"])->name("client.rooms");

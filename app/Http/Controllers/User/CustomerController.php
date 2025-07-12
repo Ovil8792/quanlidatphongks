@@ -26,7 +26,7 @@ class CustomerController extends Controller
         $cat = Category::get();
         $checkactive = ["home","about","contact","news","other","rooms"];
         session::put(["active"=>$checkactive]);
-        session::put(["locale"=>"vi"]);
+        // session::put(["locale"=>"vi"]);
         session::put(["category"=>$cat]);
         return view("client.index",compact("cat","room"));
     }
@@ -34,9 +34,9 @@ class CustomerController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function privacyPolicy()
     {
-        //
+        return view("client.privacy-policy");
     }
 
     /**

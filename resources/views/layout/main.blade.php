@@ -24,6 +24,27 @@
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/style.css" type="text/css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
+
+<script>
+window.addEventListener("load", function(){
+  window.cookieconsent.initialise({
+    palette: {
+      popup: { background: "#000" },
+      button: { background: "#f1d600" }
+    },
+    theme: "classic",
+    position: "bottom-right",
+    content: {
+      message: "Chúng tôi sử dụng cookie để cải thiện trải nghiệm người dùng.",
+      dismiss: "Đã hiểu",
+      link: "Tìm hiểu thêm",
+      href: "{{ route('client.privacy-policy') }}" // hoặc link đến trang chính sách của bạn
+    }
+  })
+});
+</script>
 <style>
     .text-readable {
 text-shadow:
@@ -103,7 +124,7 @@ text-shadow:
         </nav>
         <div id="mobile-menu-wrap"></div>
         <div class="top-social">
-            <a href="#"><i class="fa-brands fa-facebook"></i></a>
+            <a href="https://www.facebook.com/tran.duy.768495/"><i class="fa-brands fa-facebook"></i></a>
             <a href="#"><i class="fa-brands fa-twitter"></i></a>
             <a href="#"><i class="fa-brands fa-instagram"></i></a>
             <a href="#"><i class="fa-brands fa-youtube"></i></a>
@@ -129,10 +150,10 @@ text-shadow:
                     <div class="col-lg-6">
                         <div class="tn-right">
                             <div class="top-social">
-                                <a href="#"><i class="fa-brands fa-facebook"></i></a>
-                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
-                                <a href="#"><i class="fa-brands fa-instagram"></i></a>
-                                <a href="#"><i class="fa-brands fa-youtube"></i></a>
+                                <a target="_blank" href="https://www.facebook.com/tran.duy.768495/"><i class="fa-brands fa-facebook"></i></a>
+                                <a target="_blank" href="https://x.com/DuyProMax1925"><i class="fa-brands fa-x-twitter"></i></a>
+                                <a target="_blank" href="#"><i class="fa-brands fa-instagram"></i></a>
+                                <a target="_blank" href="https://www.youtube.com/@KrackMarcV"><i class="fa-brands fa-youtube"></i></a>
                             </div>
                             <a href="#" class="bk-btn">Booking Now</a>
                             @if (session("locale") == "vi" || session("locale") == null || session("locale") == "")
@@ -173,7 +194,7 @@ text-shadow:
                     <div class="col-lg-2">
                         <div class="logo">
                             <a href="{{ route("client.index") }}">
-                                <img src="{{ asset(url("")) }}/img/logo.png" alt="">
+                                <img width="50%" src="{{ asset(url("")) }}/img/logo.png" alt="">
                             </a>
                         </div>
                     </div>
@@ -191,9 +212,9 @@ text-shadow:
                                         </ul>
                                     </li>
                                     <li class="linkcheck" id="about"><a href="{{ route("client.about") }}">{{ __("messages.AboutUs") }}</a></li>
-                                    <li class="linkcheck" id="other"><a href="./pages.html">{{ __("messages.Pages") }}</a></li>
                                     <li class="linkcheck" id="news"><a href="./blog.html">{{ __("messages.News") }}</a></li>
                                     <li class="linkcheck" id="contact"><a href="{{ route("client.contact") }}">{{ __("messages.Contact") }}</a></li>
+                                    <li class="linkcheck" id="other"><a href="./pages.html">{{ __("messages.Pages") }}</a></li>
                                 </ul>
                             </nav>
                             <!-- <div class="nav-right search-switch">
@@ -224,13 +245,19 @@ text-shadow:
                         <div class="ft-about">
                             <div class="logo">
                                 <a href="#">
-                                    <img src="{{ asset(url("")) }}/img/footer-logo.png" alt="">
+                                    <img width="60%" src="{{ asset(url("")) }}/img/footer-logo.png" alt="">
                                 </a>
                             </div>
-                            <p>We inspire and reach millions of travelers<br /> across 90 local websites</p>
+                            <p>Chúng tôi truyền cảm hứng và tiếp cận hàng triệu <br />du khách bằng những dịch vụ chăm sóc khách hàng
+                            <br /> và những trải nghiệm tuyệt vời nhất.</p>
+                            <p>River New cung cấp các dịch vụ khách sạn, nhà hàng và
+                                du lịch hàng đầu, mang đến cho bạn những trải nghiệm đáng nhớ.</p>
+                            <p>Chúng tôi cam kết mang đến cho bạn những dịch vụ tốt nhất,
+                                từ việc đặt phòng khách sạn đến các tour du lịch độc đáo.</p>
+                            </p>
                             <div class="fa-social">
-                                <a href="#"><i class="fa-brands fa-facebook"></i></a>
-                                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                                <a href="https://www.facebook.com/tran.duy.768495/"><i class="fa-brands fa-facebook"></i></a>
+                                <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
                                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
                                 <a href="#"><i class="fa-brands fa-youtube"></i></a>
                             </div>
@@ -238,21 +265,21 @@ text-shadow:
                     </div>
                     <div class="col-lg-3 offset-lg-1">
                         <div class="ft-contact">
-                            <h6>Contact Us</h6>
+                            <h6>Liên hệ với chúng tôi</h6>
                             <ul>
-                                <li>(12) 345 67890</li>
-                                <li>info.colorlib@gmail.com</li>
-                                <li>856 Cordia Extension Apt. 356, Lake, United State</li>
+                                <li>SĐT: 0865091023</li>
+                                <li>Email: tamuon00@gmail.com</li>
+                                <li>Địa chỉ: 127 Lê Thánh Tông, Máy Chai, Ngô Quyền, Hải Phòng</li>
                             </ul>
                         </div>
                     </div>
                     <div class="col-lg-3 offset-lg-1">
                         <div class="ft-newslatter">
-                            <h6>New latest</h6>
-                            <p>Get the latest updates and offers.</p>
+                            <h6>Nhận tin mới</h6>
+                            <p>Hãy để chúng tôi cập nhật tin tức và ưu đãi mới nhất cho bạn.</p>
                             <form action="#" class="fn-form">
-                                <input type="text" placeholder="Email">
-                                <button type="submit"><i class="fa fa-send"></i></button>
+                                <input type="text" placeholder="Email của bạn">
+                                <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
                             </form>
                         </div>
                     </div>
@@ -264,18 +291,17 @@ text-shadow:
                 <div class="row">
                     <div class="col-lg-7">
                         <ul>
-                            <li><a href="#">Contact</a></li>
+                            <li><a href="{{ route("client.contact") }}">Liên hệ</a></li>
                             <li><a href="#">Terms of use</a></li>
-                            <li><a href="#">Privacy</a></li>
+                            <li><a href="{{ route("client.privacy-policy") }}">Chính sách</a></li>
                             <li><a href="#">Environmental Policy</a></li>
                         </ul>
                     </div>
                     <div class="col-lg-5">
                         <div class="co-text">
                             <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                                Copyright &copy;
-                                <script>document.write(new Date().getFullYear());</script> All rights reserved | This
-                                template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a
+                                Bản quyền &copy;
+                                <script>document.write(new Date().getFullYear());</script> thuộc về River New <i class="fa fa-heart" aria-hidden="true"></i> và <a
                                     href="https://colorlib.com" target="_blank">Colorlib</a>
                                 <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
                             </p>
@@ -299,6 +325,7 @@ text-shadow:
     <!-- Search model end -->
 
     <!-- Js Plugins -->
+    
         <script>
           //  document.addEventListener("DOMContentLoaded", function() {
         const checkactive = @json(session("active"));
@@ -315,7 +342,7 @@ text-shadow:
         }
     // });
     </script>
-    <script src="{{ asset(url("")) }}/js/jquery-3.3.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="{{ asset(url("")) }}/js/bootstrap.min.js"></script>
     <script src="{{ asset(url("")) }}/js/jquery.magnific-popup.min.js"></script>
     <script src="{{ asset(url("")) }}/js/jquery.nice-select.min.js"></script>
@@ -323,6 +350,26 @@ text-shadow:
     <script src="{{ asset(url("")) }}/js/jquery.slicknav.js"></script>
     <script src="{{ asset(url("")) }}/js/owl.carousel.min.js"></script>
     <script src="{{ asset(url("")) }}/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+function copyVoucher(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Đã sao chép mã: ' + code,
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+        });
+    });
+}
+</script>
+
+
 
 </body>
 

@@ -19,7 +19,7 @@ class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $locale =session('locale', config('app.locale'));
-                session::put(["locale"=>"vi"]);
+                // session::put(["locale"=>"vi"]);
         App::setLocale($locale);
         Log::info("Current locale in middleware:   $locale");
         return $next($request);
