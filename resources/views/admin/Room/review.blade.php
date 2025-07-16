@@ -5,7 +5,7 @@
             <div class="row">
               <div class="col-lg-12">
                 <div class="card-style mb-30">
-                  <h6 class="mb-10">Danh sách đánh giá</h6>
+                  <h6 class="mb-10">Danh sách đánh giá của phòng {{ $id.".".$rn->name }}</h6>
                    <p style="display: none;" id="check">review</p>
                   <div class="table-wrapper table-responsive">
                     <table class="table">

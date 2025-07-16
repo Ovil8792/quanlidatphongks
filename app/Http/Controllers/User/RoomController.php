@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\khoanh;
 use App\Models\Room;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -82,5 +83,27 @@ class RoomController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+    public function RV(Request $request, int $roomid){
+       
+        $cmt = $request->comment;
+        $rtype = $request->rate;
+        if($rtype == "number"){
+            // dd($request->rating_number);
+            $rating = $request->rating_number;
+        }elseif($rtype == "star"){
+            // dd($request->rating);
+            $rating = $request->rating;
+
+        }
+
+        Review::create([
+            "userid" => session("user")->id??1,
+            "roomid" => $roomid,
+            "rating" => $rating,
+            "comment" => $cmt,
+            "created_at" => now(),
+        ]);
+        return redirect()->back()->with("success","Đánh giá thành công");
     }
 }

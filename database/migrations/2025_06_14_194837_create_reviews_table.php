@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreign("userid")->references('id')->on("users")->onDelete("cascade");
             $table->unsignedBigInteger("roomid");
             $table->foreign("roomid")->references('id')->on("rooms")->onDelete("cascade");
-            $table->tinyInteger("rating")->default(5);
+            $table->float("rating",2,1)->default(5);
             $table->timestamps();
         });
     }
