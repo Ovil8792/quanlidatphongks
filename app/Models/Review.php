@@ -6,7 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Review extends Model
 {
-        public function Review()  {
+    protected $fillable = [
+        'userid',
+        'roomid',
+        'rating',
+        'comment',
+    ];
+    public function Review()  {
         return $this->belongsTo(Room::class);
     }
 }

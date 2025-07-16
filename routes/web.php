@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\RoomController as UserRoom;
 use App\Http\Controllers\User\PaymentController;
 use Illuminate\Support\Facades\Cookie;
-// use Faker\Provider\ar_EG\Payment;
 
 Route::get("/privacy-policy",[CustomerController::class,"privacyPolicy"])->name("client.privacy-policy");
 Route::get('/lang/{locale}', function ($locale) {
@@ -43,6 +42,7 @@ Route::prefix("/")->group(function () {
     Route::get("/roomlist/{id}",[UserRoom::class,"CateRoomList"])->name("client.roomlist");
     Route::get("/roomdetail/{id}",[UserRoom::class,"show"])->name("client.roomdetail");
     Route::get("/payment",[PaymentController::class,"index"])->name("client.payment");
+    Route::post("/review/{id}",[UserRoom::class,"RV"])->name("client.p_review");
 
 });
 Route::get("/sapi",[SearchController::class,"autocompletingSearch"])->name("api.search");
@@ -80,7 +80,9 @@ Route::prefix("/administrator")->group(function () {
         Route::get("/del/{id}",[RoomController::class,"destroy"])->name("admin.delroom");
         Route::put("/update/{id}",[RoomController::class,"update"])->name("admin.updroom");
         Route::post("/store",[RoomController::class,"store"])->name("admin.storeroom");
-        Route::get("/review/{id}",[ReviewController::class,"listReview"])->name("admin.reviews");
+        Route::prefix("/review/{id}")->group(function(){
+            Route::get("/",[ReviewController::class,"listReview"])->name("admin.reviews");
+        });
     });
     Route::prefix("/storage")->group(function(){
         Route::prefix("/image")->group(function(){

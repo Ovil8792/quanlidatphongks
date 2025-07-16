@@ -14,6 +14,7 @@ class ReviewController extends Controller
 
     public function listReview($id){
         $room = Room::get();
+        $rn = $room->where("id",$id)->first();
         $user = User::get();
         $rv = Review::where("roomid",$id)->get();
         foreach($rv as $r=>$v){
@@ -21,7 +22,7 @@ class ReviewController extends Controller
             $rv[$r]->roomn = $room->where("id",$v->roomid)->first()->name ?? "Unknown Room";
         }
 
-        return view("admin.Room.review",compact("rv"));
+        return view("admin.Room.review",compact("rv","rn","id"));
         
     }
     /**

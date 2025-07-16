@@ -15,6 +15,7 @@
 
     <!-- Css Styles -->
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/starability/starability-minified/starability-all.min.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/elegant-icons.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/flaticon.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/owl.carousel.min.css" type="text/css">
@@ -27,6 +28,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/raty/3.1.1/jquery.raty.min.css">
+<style>
+.hidden-important {
+    display: none !important;
+}
+</style>
 <script>
 window.addEventListener("load", function(){
   window.cookieconsent.initialise({
@@ -139,8 +146,8 @@ text-shadow:
     <!-- Header Section Begin -->
     <header class="header-section">
         <div class="top-nav">
-            <div class="container">
-                <div class="row">
+            <div class=" d-flex justify-content-around" style="width:100%;margin: auto!important;padding:0px 80px">
+                <div class="row" style="width:85%;margin: auto!important;">
                     <div class="col-lg-6">
                         <ul class="tn-left">
                             <li><i class="fa fa-phone"></i> 0865091023</li>
@@ -148,7 +155,7 @@ text-shadow:
                         </ul>
                     </div>
                     <div class="col-lg-6">
-                        <div class="tn-right">
+                        <div class="tn-right me-3">
                             <div class="top-social">
                                 <a target="_blank" href="https://www.facebook.com/tran.duy.768495/"><i class="fa-brands fa-facebook"></i></a>
                                 <a target="_blank" href="https://x.com/DuyProMax1925"><i class="fa-brands fa-x-twitter"></i></a>
@@ -179,13 +186,35 @@ text-shadow:
                                     </div>
                                 </div>
                             @endif
-                            <a class="btn btn-primary" href="{{ route('logout') }}"> <i class="lni lni-exit"></i> Sign
-                                Out </a>
-
-
-                        </div>
+                            </div>
+                            
+                            {{-- <a href="{{ route('logout') }}"></a> --}}
                     </div>
+                    
                 </div>
+                <div class="user-dropdown" style="padding:5px;margin:auto; width: 15%; text-align: center; position: relative;">
+    <img width="25%" src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" style="cursor: pointer;">
+    
+    <div class="user-menu" id="userMenu" style="
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        min-width: 120px;
+        z-index: 1000;
+    ">
+        <ul style="list-style: none; margin: 0; padding: 10px 0;">
+            <li><a href="#" class="dropdown-item">Thông tin</a></li>
+            <li><a href="{{ route('logout') }}" class="dropdown-item">Đăng xuất</a></li>
+        </ul>
+    </div>
+</div>
+
             </div>
         </div>
         <div class="menu-item">
@@ -325,8 +354,26 @@ text-shadow:
     <!-- Search model end -->
 
     <!-- Js Plugins -->
-    
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const avatar = document.getElementById('avatarToggle');
+        const menu = document.getElementById('userMenu');
+
+        avatar.addEventListener('click', function (e) {
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            e.stopPropagation(); // tránh đóng khi click chính nó
+        });
+
+        // Đóng menu khi click bên ngoài
+        document.addEventListener('click', function () {
+            menu.style.display = 'none';
+        });
+    });
+</script>
+
         <script>
+
+            
           //  document.addEventListener("DOMContentLoaded", function() {
         const checkactive = @json(session("active"));
         const current = document.getElementById("current");
@@ -342,7 +389,9 @@ text-shadow:
         }
     // });
     </script>
+    
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/raty/3.1.1/jquery.raty.min.js"></script>
     <script src="{{ asset(url("")) }}/js/bootstrap.min.js"></script>
     <script src="{{ asset(url("")) }}/js/jquery.magnific-popup.min.js"></script>
     <script src="{{ asset(url("")) }}/js/jquery.nice-select.min.js"></script>
@@ -369,7 +418,33 @@ function copyVoucher(code) {
 }
 </script>
 
+<script>
+    $(document).ready(function() {
+        $('#star-rating').raty({
+            half: true, // Bật hỗ trợ nửa sao
+            scoreName: 'rating', // Gán giá trị vào input hidden
+            starHalf: 'https://cdnjs.cloudflare.com/ajax/libs/raty/3.1.1/images/star-half.png', // Icon nửa sao
+            starOn: 'https://cdnjs.cloudflare.com/ajax/libs/raty/3.1.1/images/star-on.png', // Icon sao đầy
+            starOff: 'https://cdnjs.cloudflare.com/ajax/libs/raty/3.1.1/images/star-off.png', // Icon sao rỗng
+            hints: ['0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'], // Gợi ý cho từng mức
+            click: function(score, evt) {
+                $('#rating-value').val(score); // Cập nhật giá trị vào input hidden
+            }
+        });
+        // Khi đổi lựa chọn kiểu đánh giá
+    $('input[name="rate"]').on('change', function () {
+    const type = $(this).val();
+    if (type === 'star') {
+        $('#number-rating-wrapper').addClass('hidden-important');
+        $('#star-rating-wrapper').removeClass('hidden-important');
+    } else {
+        $('#star-rating-wrapper').addClass('hidden-important');
+        $('#number-rating-wrapper').removeClass('hidden-important');
+    }
+});
 
+    });
+</script>
 
 </body>
 

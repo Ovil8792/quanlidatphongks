@@ -24,10 +24,7 @@ class CustomerController extends Controller
     {
        $room= Room::where("isInUse",0)->get();
         $cat = Category::get();
-        $checkactive = ["home","about","contact","news","other","rooms"];
-        session::put(["active"=>$checkactive]);
-        // session::put(["locale"=>"vi"]);
-        session::put(["category"=>$cat]);
+        
         return view("client.index",compact("cat","room"));
     }
 
