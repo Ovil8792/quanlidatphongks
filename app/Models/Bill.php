@@ -23,6 +23,10 @@ class Bill extends Model
     {
         return $this->hasMany(DetailedBill::class, 'id_bill');
     }
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
 
     // Định dạng thời gian nếu muốn (không bắt buộc)
     protected $casts = [
