@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ['locale']
         );
         $middleware->append(\App\Http\Middleware\SetLocale::class);
+        $middleware->append(\App\Http\Middleware\InitializeSession::class);
         
 
         $middleware->alias([

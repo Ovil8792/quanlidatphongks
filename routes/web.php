@@ -17,7 +17,7 @@ use App\Http\Controllers\User\RoomController as UserRoom;
 use App\Http\Controllers\User\PaymentController;
 use Illuminate\Support\Facades\Cookie;
 use App\Http\Controllers\DathangController;
-// use Faker\Provider\ar_EG\Payment;
+
 
 Route::get("/privacy-policy", [CustomerController::class, "privacyPolicy"])->name("client.privacy-policy");
 Route::get('/lang/{locale}', function ($locale) {
@@ -40,10 +40,13 @@ Route::prefix("/")->group(function () {
     Route::get("/about-us", [CustomerController::class, "about"])->name("client.about");
     Route::get("/contact", [CustomerController::class, "contact"])->name("client.contact");
     Route::post("/sendcontact", [ContactController::class, "store"])->name("client.postcontact");
-    Route::get("/rooms", [UserRoom::class, "index"])->name("client.rooms");
-    Route::get("/roomlist/{id}", [UserRoom::class, "CateRoomList"])->name("client.roomlist");
-    Route::get("/roomdetail/{id}", [UserRoom::class, "show"])->name("client.roomdetail");
-    Route::get("/payment", [PaymentController::class, "index"])->name("client.payment");
+
+    Route::get("/rooms",[UserRoom::class,"index"])->name("client.rooms");
+    Route::get("/roomlist/{id}",[UserRoom::class,"CateRoomList"])->name("client.roomlist");
+    Route::get("/roomdetail/{id}",[UserRoom::class,"show"])->name("client.roomdetail");
+    Route::get("/payment",[PaymentController::class,"index"])->name("client.payment");
+    Route::post("/review/{id}",[UserRoom::class,"RV"])->name("client.p_review");
+
 });
 Route::get("/sapi", [SearchController::class, "autocompletingSearch"])->name("api.search");
 Route::get("/search", [SearchController::class, "search"])->name("search.pending");
@@ -70,17 +73,20 @@ Route::prefix("/administrator")->group(function () {
         Route::post("/update/{id}", [UserController::class, "update"])->name("admin.updateuser");
         Route::get("/delete/{id}", [UserController::class, "destroy"])->name("admin.deleteuser");
     });
-    Route::prefix("/room")->group(function () {
-        Route::get("/list", [RoomController::class, "index"])->name("admin.roomlist");
-        Route::get("/info/{id}", [RoomController::class, "show"])->name("admin.showroom");
-        Route::get("/add", [RoomController::class, "create"])->name("admin.addroom");
-        Route::get("/addpic/{id}", [RoomController::class, "toStorePic"])->name("admin.tostorepic");
-        Route::post("/storepic/{id}", [RoomController::class, "StorePic"])->name("admin.storepic");
-        Route::get("/edit/{id}", [RoomController::class, "edit"])->name("admin.editroom");
-        Route::get("/del/{id}", [RoomController::class, "destroy"])->name("admin.delroom");
-        Route::put("/update/{id}", [RoomController::class, "update"])->name("admin.updroom");
-        Route::post("/store", [RoomController::class, "store"])->name("admin.storeroom");
-        Route::get("/review/{id}", [ReviewController::class, "listReview"])->name("admin.reviews");
+
+    Route::prefix("/room")->group(function(){
+        Route::get("/list",[RoomController::class,"index"])->name("admin.roomlist");
+        Route::get("/info/{id}",[RoomController::class,"show"])->name("admin.showroom");
+        Route::get("/add",[RoomController::class,"create"])->name("admin.addroom");
+        Route::get("/addpic/{id}",[RoomController::class,"toStorePic"])->name("admin.tostorepic");
+        Route::post("/storepic/{id}",[RoomController::class,"StorePic"])->name("admin.storepic");
+        Route::get("/edit/{id}",[RoomController::class,"edit"])->name("admin.editroom");
+        Route::get("/del/{id}",[RoomController::class,"destroy"])->name("admin.delroom");
+        Route::put("/update/{id}",[RoomController::class,"update"])->name("admin.updroom");
+        Route::post("/store",[RoomController::class,"store"])->name("admin.storeroom");
+        Route::prefix("/review/{id}")->group(function(){
+            Route::get("/",[ReviewController::class,"listReview"])->name("admin.reviews");
+        });
     });
     Route::prefix("/storage")->group(function () {
         Route::prefix("/image")->group(function () {
