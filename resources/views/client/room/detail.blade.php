@@ -1,5 +1,4 @@
 @extends('layout.main')
-
 @section('main')
     <!-- Breadcrumb Section Begin -->
     <div class="breadcrumb-section">
@@ -17,7 +16,9 @@
             </div>
         </div>
     </div>
-    <!-- Breadcrumb Section End -->
+</div>
+<!-- Breadcrumb Section End -->
+
 
     <!-- Room Details Section Begin -->
     <section class="room-details-section spad">
@@ -90,32 +91,66 @@
                                     <i class="icon_star"></i>
                                     <i class="icon_star-half_alt"></i>
                                 </div>
-                                <h5>Brandon Kelley</h5>
-                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et dolore
-                                    magnam.</p>
+                                <a href="{{ route('dathang.form', ['id' => $room->id]) }}">Booking Now</a>
                             </div>
                         </div>
-                        <div class="review-item">
-                            <div class="ri-pic">
-                                <img src="{{ asset(url('')) }}/img/room/avatar/avatar-2.jpg" alt="">
+                        <h2>{{ $room->base_price}}<span>/Pernight</span></h2>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="r-o">Size:</td>
+                                    <td>30 ft</td>
+                                </tr>
+                                <tr>
+                                    <td class="r-o">Capacity:</td>
+                                    <td>Max persion 5</td>
+                                </tr>
+                                <tr>
+                                    <td class="r-o">Bed:</td>
+                                    <td>King Beds</td>
+                                </tr>
+                                <tr>
+                                    <td class="r-o">Tiện ích:</td>
+                                    <td>{{ $room->amenities }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="f-para">
+                            {{ $room->description }}
+                        </p>
+                    </div>
+                </div>
+                <div class="imglist">
+                    <h4>Ảnh</h4>
+                    <div class="image-item">
+                        @foreach ($imglist as $khoanh)
+                        <img src="{{ asset(url("")) }}/storage/upload/{{ $khoanh->imgname }}" alt="" style="width: 100px; height: 100px; margin-right: 10px;">
+
+                        @endforeach
+                    </div>
+                </div>
+                <div class="rd-reviews">
+                    <h4>Reviews</h4>
+                    <div class="review-item">
+                        <div class="ri-pic">
+                            <img src="{{ asset(url("")) }}/img/room/avatar/avatar-1.jpg" alt="">
+                        </div>
+                        <div class="ri-text">
+                            <span>27 Aug 2019</span>
+                            <div class="rating">
+                                <i class="icon_star"></i>
+                                <i class="icon_star"></i>
+                                <i class="icon_star"></i>
+                                <i class="icon_star"></i>
+                                <i class="icon_star-half_alt"></i>
                             </div>
-                            <div class="ri-text">
-                                <span>27 Aug 2019</span>
-                                <div class="rating">
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star-half_alt"></i>
-                                </div>
-                                <h5>Brandon Kelley</h5>
-                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et dolore
-                                    magnam.</p>
-                            </div>
+                            <h5>Brandon Kelley</h5>
+                            <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,
+                                adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et dolore
+                                magnam.</p>
                         </div>
                     </div>
+
 
 
                     <div class="review-add">
@@ -200,6 +235,7 @@
             </div>
 
         </div>
-    </section>
-    <!-- Room Details Section End -->
+    </div>
+</section>
+<!-- Room Details Section End -->
 @endsection
