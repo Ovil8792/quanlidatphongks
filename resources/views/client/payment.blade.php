@@ -31,45 +31,61 @@
         </div>
 
         {{-- Cột thông tin đặt phòng --}}
+        @php
+        function format_date($date) {
+        return \Carbon\Carbon::parse($date)->format('d-m-Y');
+        }
+        @endphp
+
         <div class="col-md-6">
             <div class="card shadow rounded-3 p-3 mb-4">
                 <h4 class="mb-3">2. Thông tin đặt phòng</h4>
+
                 <div class="mb-2"><strong>Khách sạn:</strong></div>
                 <div class="mb-2"><strong>Loại phòng:</strong></div>
+
                 <div class="mb-2">
                     <strong>Số lượng phòng:</strong>
-                    <span id="rooms">{{ $booking['room'] ?? '5'}}</span>
+                    <input type="hidden" name="rooms" class="form-control-plaintext" readonly style="border: none;" value="{{ $booking['room'] }}">
+                    <span>{{ $booking['room'] }}</span>
                 </div>
+
                 <div class="mb-2">
                     <strong>Ngày nhận phòng:</strong>
-                    <span id="check_in_raw" style="display: none">{{ $booking['check_in'] ?? '2025-05-11' }}</span>
-                    <span id="check_in"></span>
+                    <input type="hidden" name="check_in" class="form-control-plaintext" readonly style="border: none;" value="{{ format_date($booking['check_in']) }}">
+                    <span>{{ format_date($booking['check_in']) }}</span>
                 </div>
 
                 <div class="mb-2">
                     <strong>Ngày trả phòng:</strong>
-                    <span id="check_out_raw" style="display: none">{{ $booking['check_out'] ?? '2025-05-16' }}</span>
-                    <span id="check_out"></span>
+                    <input type="hidden" name="check_out" class="form-control-plaintext" readonly style="border: none;" value="{{ format_date($booking['check_out']) }}">
+                    <span>{{ format_date($booking['check_out']) }}</span>
                 </div>
-                <div class="mb-2"><strong>Giá mỗi đêm: </strong>
-                    <span id="ppn">{{ $booking['base_price'] ?? '200000' }}</span>VNĐ
+
+                <div class="mb-2">
+                    <strong>Giá mỗi đêm: </strong>
+                    <input type="hidden" name="ppn" class="form-control-plaintext" readonly style="border: none;" value="{{ number_format($booking['base_price'], 0, ',', '.') }} VNĐ">
+                    <span>{{ number_format($booking['base_price'], 0, ',', '.') }} VNĐ</span>
                 </div>
+
                 <div class="mb-2">
                     <strong>Số đêm:</strong>
-                    <span id="nights"></span>
+                    <input type="hidden" name="nights" class="form-control-plaintext" readonly style="border: none;" value="{{ $nights }}">
+                    <span>{{ $nights }}</span>
                 </div>
+
                 <div class="mb-2">
                     <strong>Tổng tiền:</strong>
-                    <span id="total"></span>
-                    <strong class="text-danger"> VND</strong>
+                    <input type="hidden" name="total" class="form-control-plaintext text-danger" readonly style="border: none;" value="{{ number_format($total, 0, ',', '.') }} VND">
+                    <span><strong style="color: red;text-decoration: underline;">{{ number_format($total, 0, ',', '.') }} VND</strong></span>
                 </div>
+
                 <div class="mb-3 text-start">
                     <label class="form-label"><strong>Phương thức thanh toán:</strong></label>
                     <div class="form-control bg-light">
                         <img src="{{ uri('./img/logo_pttt/LogoMoMoSquare.png') }}" alt="Momo" style="height: 24px; margin-right: 8px;">
                         Thanh toán qua ví Momo
                     </div>
-                    {{-- Input ẩn để gửi giá trị --}}
                     <input type="hidden" name="payment_method" value="momo">
                 </div>
             </div>
@@ -78,44 +94,11 @@
 
     {{-- Nút thanh toán --}}
     <div class="text-center">
-        <form action="" method="POST">
+        <form action="{{ route('vnpay-payment') }}" method="POST">
             @csrf
-            <input type="hidden" name="booking_id" value="">
-            <button type="submit" class="btn btn-primary px-5 py-2">Thanh toán ngay</button>
+            <input type="hidden" name="total" value="{{ $total }}">
+            <button type="submit" name="redirect" class="btn btn-primary px-5 py-2">Thanh toán ngay</button>
         </form>
     </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const checkInRaw = document.getElementById('check_in_raw').innerText.trim();
-        const checkOutRaw = document.getElementById('check_out_raw').innerText.trim();
-
-        function formatDate(dateStr) {
-            const [year, month, day] = dateStr.split('-');
-            return `${day}-${month}-${year}`;
-        }
-
-        // Gán ngày đã định dạng vào view
-        document.getElementById('check_in').innerText = formatDate(checkInRaw);
-        document.getElementById('check_out').innerText = formatDate(checkOutRaw);
-
-        // Tính số đêm
-        const dateIn = new Date(checkInRaw);
-        const dateOut = new Date(checkOutRaw);
-
-        const diffTime = dateOut - dateIn;
-        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-        document.getElementById('nights').innerText = diffDays;
-
-        const rooms = document.getElementById('rooms').innerText;
-        const PricePerNight = document.getElementById('ppn').innerText;
-        const totalPrice = diffDays * PricePerNight * rooms;
-
-        document.getElementById('total').innerText = totalPrice.toLocaleString('vi-VN', {
-            style: 'currency',
-            currency: 'VND'
-        });
-    });
-</script>
 @endsection
