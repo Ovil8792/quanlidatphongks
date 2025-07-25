@@ -42,7 +42,7 @@ Route::prefix("/")->group(function () {
     Route::get("/roomlist/{id}",[UserRoom::class,"CateRoomList"])->name("client.roomlist");
     Route::get("/roomdetail/{id}",[UserRoom::class,"show"])->name("client.roomdetail");
     Route::get("/payment",[PaymentController::class,"index"])->name("client.payment");
-    Route::post("/momo-payment",[PaymentController::class,"processPayment"])->name("momo-payment");
+    Route::post("/vnpay-payment",[PaymentController::class,"processPayment"])->name("vnpay-payment");
     Route::post("/review/{id}",[UserRoom::class,"RV"])->name("client.p_review");
 
 });

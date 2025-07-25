@@ -94,10 +94,10 @@
 
     {{-- Nút thanh toán --}}
     <div class="text-center">
-        <form action="{{ route('momo-payment') }}" method="POST">
+        <form action="{{ route('vnpay-payment') }}" method="POST">
             @csrf
             <input type="hidden" name="total" value="{{ $total }}">
-            <button type="submit" class="btn btn-primary px-5 py-2">Thanh toán ngay</button>
+            <button type="submit" name="redirect" class="btn btn-primary px-5 py-2">Thanh toán ngay</button>
         </form>
     </div>
 </div>
