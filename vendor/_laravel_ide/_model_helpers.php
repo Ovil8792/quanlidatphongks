@@ -312,23 +312,36 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
+     * @property string|null $guest_phone
+     * @property string|null $guest_email
+     * @property string|null $guest_name
      * @property \Illuminate\Support\Carbon|null $payment_date
      * @property string $booking_date
+     * @property string|null $checkout
+     * @property string|null $checkin
      * @property string|null $note
      * @property string $status
      * @property float $total
+     * @property mixed $room_id
      * @property mixed $user_id
      * @property int $id
      * @property-read \App\Models\User $user
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DetailedBill> $details
      * @property-read int|null $details_count
+     * @property-read \App\Models\Room $room
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereUserId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereRoomId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereTotal($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereStatus($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereNote($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereCheckin($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereCheckout($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereBookingDate($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill wherePaymentDate($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereGuestName($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereGuestEmail($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereGuestPhone($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Bill>|Bill newModelQuery()
@@ -1871,7 +1884,7 @@ namespace App\Models {
      *
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
-     * @property bool $rating
+     * @property mixed $rating
      * @property mixed $roomid
      * @property mixed $userid
      * @property string $comment
@@ -2504,6 +2517,8 @@ namespace App\Models {
     /**
      * App\Models\User
      *
+     * @property string|null $address
+     * @property string|null $phone
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string $role
@@ -2524,6 +2539,8 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereRole($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereUpdatedAt($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePhone($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereAddress($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User query()

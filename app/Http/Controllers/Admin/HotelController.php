@@ -14,7 +14,7 @@ class HotelController extends Controller
     public function index()
     {
         $hotel = Hotel::get();
-        return view('admin.hotel.index', compact('hotel'));
+        return view('admin.Hotel.index', compact('hotel'));
     }
 
     /**
@@ -22,7 +22,7 @@ class HotelController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.Hotel.create');
     }
 
     /**
@@ -30,7 +30,29 @@ class HotelController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // $request->validate([
+        //     'name' => 'required|string|max:255',
+        //     'address' => 'required|string|max:255',
+        //     'pimage' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        //     'description' => 'nullable|string',
+        // ]);
+
+        $hotel = new Hotel();
+        $hotel->name = $request->name;
+        $hotel->address = $request->address;
+        $hotel->description = $request->descr;
+        $hotel->rooms= $request->rooms;
+        $hotel->pimage = "";
+        if ($request->hasFile('pimage')) {
+            $image = $request->file('pimage');
+            $filename = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('/upload', $filename);
+            $hotel->pimage = $filename;
+        }
+        
+        $hotel->save();
+
+        return redirect()->route('admin.hotel')->with('success', 'Hotel created successfully.');
     }
 
     /**
@@ -44,17 +66,36 @@ class HotelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $hotel = Hotel::findOrFail($id);
+        return view('admin.Hotel.edit', compact('hotel'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $name = $request->name;
+        $address=$request->address;
+        $rooms = $request->rooms;
+        $description = $request->descr;
+        $pimage = "";
+        if ($request->hasFile('pimage')) {
+            $image = $request->file('pimage');
+            $filename = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('/upload', $filename);
+            $pimage = $filename;
+        }
+        Hotel::update([
+            "name"=>$name,
+            "address"=>$address,
+            "rooms"=>$rooms,
+            "pimage"=>$pimage,
+            "description"=>$description,
+        ]);
+        return redirect(route("admin.hotel"))->with("success","Sửa thành công!");
     }
 
     /**

@@ -9,15 +9,17 @@ use App\Http\Controllers\Admin\ImageStorageController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\api\SearchController;
+use App\Http\Controllers\api\CookieController;
 use App\Http\Controllers\User\CustomerController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\ContactController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\RoomController as UserRoom;
 use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\ProfileController;
 use Illuminate\Support\Facades\Cookie;
 use App\Http\Controllers\DathangController;
-
+// use Faker\Provider\ar_EG\Payment;
 
 Route::get("/privacy-policy", [CustomerController::class, "privacyPolicy"])->name("client.privacy-policy");
 Route::get('/lang/{locale}', function ($locale) {
@@ -40,17 +42,27 @@ Route::prefix("/")->group(function () {
     Route::get("/about-us", [CustomerController::class, "about"])->name("client.about");
     Route::get("/contact", [CustomerController::class, "contact"])->name("client.contact");
     Route::post("/sendcontact", [ContactController::class, "store"])->name("client.postcontact");
-
-    Route::get("/rooms",[UserRoom::class,"index"])->name("client.rooms");
-    Route::get("/roomlist/{id}",[UserRoom::class,"CateRoomList"])->name("client.roomlist");
-    Route::get("/roomdetail/{id}",[UserRoom::class,"show"])->name("client.roomdetail");
-    Route::get("/payment",[PaymentController::class,"index"])->name("client.payment");
+    Route::get("/rooms", [UserRoom::class, "index"])->name("client.rooms");
+    Route::get("/roomlist/{id}", [UserRoom::class, "CateRoomList"])->name("client.roomlist");
+    Route::get("/roomdetail/{id}", [UserRoom::class, "show"])->name("client.roomdetail");
+    Route::get("/payment", [PaymentController::class, "index"])->name("client.payment");
+     Route::get('/profile', [ProfileController::class, 'show'])->name('client.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('client.edit');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('client.update');
+        Route::post("/vnpay-payment",[PaymentController::class,"processPayment"])->name("vnpay-payment");
     Route::post("/review/{id}",[UserRoom::class,"RV"])->name("client.p_review");
 
 });
 Route::get("/sapi", [SearchController::class, "autocompletingSearch"])->name("api.search");
 Route::get("/search", [SearchController::class, "search"])->name("search.pending");
 Route::get("/sres", [SearchController::class, "search"])->name("search.result");
+Route::get("/api/booking-cookies",[CookieController::class,"cookieRequest"]);
+Route::post('/update-booking-cookie', function (Illuminate\Http\Request $request) {
+    $loc = $request->input('selected_location');
+    return response('OK')->cookie('bookingdata', json_encode(['location' => $loc]), 60 * 24);
+});
+Route::post("/api/filter-rooms",[SearchController::class,"filter"]);
+
 Route::prefix("/administrator")->group(function () {
     Route::get("/", [AdminController::class, "index"])->name("admin.index");
     Route::prefix("contact")->group(function () {
@@ -58,6 +70,10 @@ Route::prefix("/administrator")->group(function () {
     });
     Route::prefix("/hotel")->group(function () {
         Route::get("/", [HotelController::class, "index"])->name("admin.hotel");
+        Route::get("/create", [HotelController::class, "create"])->name("admin.createhotel");
+        Route::get("/edit/{id}", [HotelController::class, "edit"])->name("admin.edithotel");
+        Route::post("/store", [HotelController::class, "store"])->name("admin.storehotel");
+        Route::put("/update/{id}", [HotelController::class, "update"])->name("admin.updatehotel");
     });
     Route::prefix("/category")->group(function () {
         Route::get("/", [CategoryController::class, "index"])->name("admin.category");
@@ -73,20 +89,17 @@ Route::prefix("/administrator")->group(function () {
         Route::post("/update/{id}", [UserController::class, "update"])->name("admin.updateuser");
         Route::get("/delete/{id}", [UserController::class, "destroy"])->name("admin.deleteuser");
     });
-
-    Route::prefix("/room")->group(function(){
-        Route::get("/list",[RoomController::class,"index"])->name("admin.roomlist");
-        Route::get("/info/{id}",[RoomController::class,"show"])->name("admin.showroom");
-        Route::get("/add",[RoomController::class,"create"])->name("admin.addroom");
-        Route::get("/addpic/{id}",[RoomController::class,"toStorePic"])->name("admin.tostorepic");
-        Route::post("/storepic/{id}",[RoomController::class,"StorePic"])->name("admin.storepic");
-        Route::get("/edit/{id}",[RoomController::class,"edit"])->name("admin.editroom");
-        Route::get("/del/{id}",[RoomController::class,"destroy"])->name("admin.delroom");
-        Route::put("/update/{id}",[RoomController::class,"update"])->name("admin.updroom");
-        Route::post("/store",[RoomController::class,"store"])->name("admin.storeroom");
-        Route::prefix("/review/{id}")->group(function(){
-            Route::get("/",[ReviewController::class,"listReview"])->name("admin.reviews");
-        });
+    Route::prefix("/room")->group(function () {
+        Route::get("/list", [RoomController::class, "index"])->name("admin.roomlist");
+        Route::get("/info/{id}", [RoomController::class, "show"])->name("admin.showroom");
+        Route::get("/add", [RoomController::class, "create"])->name("admin.addroom");
+        Route::get("/addpic/{id}", [RoomController::class, "toStorePic"])->name("admin.tostorepic");
+        Route::post("/storepic/{id}", [RoomController::class, "StorePic"])->name("admin.storepic");
+        Route::get("/edit/{id}", [RoomController::class, "edit"])->name("admin.editroom");
+        Route::get("/del/{id}", [RoomController::class, "destroy"])->name("admin.delroom");
+        Route::put("/update/{id}", [RoomController::class, "update"])->name("admin.updroom");
+        Route::post("/store", [RoomController::class, "store"])->name("admin.storeroom");
+        Route::get("/review/{id}", [ReviewController::class, "listReview"])->name("admin.reviews");
     });
     Route::prefix("/storage")->group(function () {
         Route::prefix("/image")->group(function () {
@@ -118,9 +131,9 @@ Route::prefix("/administrator")->group(function () {
     // Route::get("/tup",[RoomController::class,"totest"])->name("totest");
     // Route::post("/testupload",[RoomController::class,"uptest"])->name("testing");
 });
-Route::get('/dathang/{id}', [DathangController::class, 'showForm'])->name('dathang.form');
-Route::post('/dathang/store', [DathangController::class, 'store'])->name('dathang.store');
-Route::get('/dathang/confirm', [DathangController::class, 'xacNhan'])->name('dathang.confirm');
+Route::get('/datphong/{id}', [DathangController::class, 'showForm'])->name('dathang.form');
+Route::post('/datphong/store', [DathangController::class, 'store'])->name('dathang.store');
+Route::get('/datphong/confirm', [DathangController::class, 'xacNhan'])->name('dathang.confirm');
 Route::get("/thanhcong", [DathangController::class, "testr"])->name("testr");
 
 

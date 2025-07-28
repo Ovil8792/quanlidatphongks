@@ -49,7 +49,7 @@
             <a href="{{ route('client.index') }}" class="btn btn-outline-secondary px-4">
                 <i class="bi bi-house-door"></i> Về trang chủ
             </a>
-            <a href="#" class="btn btn-success px-4">
+            <a href="{{ route("client.payment") }}" class="btn btn-success px-4">
                 <i class="bi bi-credit-card"></i> Thanh toán đặt cọc
             </a>
         </div>

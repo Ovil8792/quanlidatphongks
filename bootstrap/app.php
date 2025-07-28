@@ -20,10 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {      
         $middleware->prepend(\Illuminate\Session\Middleware\StartSession::class);
+        $middleware->append(\App\Http\Middleware\SetLocale::class);
+         $middleware->append(\App\Http\Middleware\ShareData::class);
         $middleware->encryptCookies(
             ['locale']
         );
-        $middleware->append(\App\Http\Middleware\SetLocale::class);
         $middleware->append(\App\Http\Middleware\InitializeSession::class);
         
 
