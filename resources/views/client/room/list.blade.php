@@ -42,7 +42,7 @@
 
             <div class="col-lg-4 col-md-6">
                 <div class="room-item">
-                    <img src="{{ asset(url("")) }}/storage/upload/{{ $v->pimage }}" alt="">
+                    <img src="{{ asset(url('')) }}/storage/upload/{{ $v->pimage }}" alt="">
                     <div class="ri-text">
                         <h4>{{ $v->name }}</h4>
                         <h3>{{ $v->base_price }}VNĐ<span>/Pernight</span></h3>
@@ -66,7 +66,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <a href="{{ route("client.roomdetail",["id"=>$v->id]) }}" class="primary-btn">More Details</a>
+                        <a href="{{ route("client.roomdetail",["id"=>$v->id]) }}" class="primary-btn">Chi tiết phòng</a>
                     </div>
                 </div>
             </div>
@@ -108,7 +108,7 @@
 
             @endforeach
             @endif
-            <div class="col-lg-12">
+            <div class="pagination col-lg-12">
                 <div class="room-pagination">
                     <a href="#">1</a>
                     <a href="#">2</a>

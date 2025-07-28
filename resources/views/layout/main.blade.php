@@ -12,7 +12,7 @@
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Lora:400,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Cabin:400,500,600,700&display=swap" rel="stylesheet">
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Css Styles -->
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/starability/starability-minified/starability-all.min.css" type="text/css">
@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/magnific-popup.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/style.css" type="text/css">
+    <link rel="stylesheet" href="{{ asset(url("")) }}/css/flatpickr.min.css" type="text/css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
@@ -67,7 +68,7 @@ text-shadow:
 </style>
 </head>
 
-<body>
+<body id="bd">
     {{-- {{ dd(session("active")) }} --}}
     <!-- Page Preloder -->
     <div id="preloder">
@@ -210,7 +211,7 @@ text-shadow:
         z-index: 1000;
     ">
         <ul style="list-style: none; margin: 0; padding: 10px 0;">
-            <li><a href="#" class="dropdown-item">Thông tin</a></li>
+            <li><a href="{{ route('client.show') }}" class="dropdown-item">Thông tin</a></li>
             <li><a href="{{ route('logout') }}" class="dropdown-item">Đăng xuất</a></li>
         </ul>
     </div>
@@ -267,7 +268,7 @@ text-shadow:
 
 
     <!-- Footer Section Begin -->
-    <footer class="footer-section">
+    <footer class="footer-section" style="margin-top:10px">
         <div class="container">
             <div class="footer-text">
                 <div class="row">
@@ -402,7 +403,56 @@ text-shadow:
     <script src="{{ asset(url("")) }}/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+        axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
+        let timeout;
+
+        const saveBookingData = () => {
+            const data = {
+                cin: document.getElementById("date-in")?.value,
+                cout: document.getElementById("date-out")?.value,
+                pple: document.getElementById("guest")?.value,
+                rms: document.getElementById("room")?.value,
+                cppl: document.getElementById("customGuest")?.value,
+            };
+
+            // Chỉ gửi khi đầy đủ dữ liệu cơ bản
+            if (data.cin && data.cout && data.rms) {
+                if(data.pple || data.cppl){
+                axios.post('/api/booking-cookies', data)
+                    .then(() => console.log("Cookie bookingdata đã lưu."))
+                    .catch(err => console.error("Lỗi khi lưu cookie bookingdata", err));
+            }
+        }
+        };
+
+        ['cin', 'cout', 'pple', 'rms', 'cppl'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', saveBookingData); // đổi từ 'input' thành 'change'
+        }
+    });
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script src="{{ asset(url('')) }}/js/flatpickr.min.js"></script>
+<script src="{{ asset(url('')) }}/js/langvn.js"></script>
+<script>
+    // Set tiếng Việt cho Flatpickr
+    // flatpickr.localize(flatpickr.l10ns.vn);
+
+    flatpickr("#date-in", {
+        dateFormat: "d-m-Y"
+    });
+
+    flatpickr("#date-out", {
+        dateFormat: "d-m-Y"
+    });
+
+    // 
+</script>
 <script>
 function copyVoucher(code) {
     navigator.clipboard.writeText(code).then(() => {

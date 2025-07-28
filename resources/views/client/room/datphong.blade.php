@@ -1,7 +1,7 @@
 @extends("layout.main")
 
 @section("main")
-<a class="btn btn-primary" href="{{ route("testr") }}">test</a>
+{{-- <a class="btn btn-primary" href="{{ route("testr") }}">test</a> --}}
 <div class="container mt-5 mb-5">
     <div class="row">
         <!-- Form bên trái -->
