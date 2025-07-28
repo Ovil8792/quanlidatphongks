@@ -33,6 +33,7 @@
 <style>
 .hidden-important {
     display: none !important;
+    
 }
 </style>
 <script>
