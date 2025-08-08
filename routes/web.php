@@ -122,8 +122,6 @@ Route::prefix("/administrator")->group(function () {
     // 🔻 Route quản lý hóa đơn
     Route::prefix("/bills")->group(function () {
         Route::get("/", [BillController::class, "index"])->name("admin.bills.index");
-        Route::get("/show/{id}", [BillController::class, "show"])->name("admin.bills.show");
-        Route::put('bills/{id}/update-status', [BillController::class, 'updateStatus'])->name('bills.updateStatus');
         Route::get('/show/{bill}', [BillController::class, 'show'])->name('admin.bills.show');
         Route::put("/update-status/{id}", [BillController::class, "updateStatus"])->name("admin.bills.updateStatus");
     });

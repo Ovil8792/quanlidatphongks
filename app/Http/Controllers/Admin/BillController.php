@@ -12,10 +12,15 @@ class BillController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bills = Bill::with('user')->get();
-        return view('admin.bill.index', compact('bills'));
+        $searchId = $request->query('search_id');
+        $query = Bill::with('user');
+        if (!empty($searchId)) {
+            $query->where('id', (int) $searchId);
+        }
+        $bills = $query->get();
+        return view('admin.bill.index', compact('bills', 'searchId'));
     }
     public function updateStatus(Request $request, $id)
     {

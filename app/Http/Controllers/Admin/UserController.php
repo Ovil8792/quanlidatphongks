@@ -15,10 +15,21 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = User::all();
-        return view("admin.account.account" , compact('user'));
+        $searchId = $request->query('search_id');
+        $searchName = $request->query('search_name');
+
+        $query = User::query();
+        if (!empty($searchId)) {
+            $query->where('id', (int) $searchId);
+        }
+        if (!empty($searchName)) {
+            $query->where('name', 'like', '%'.$searchName.'%');
+        }
+
+        $user = $query->get();
+        return view("admin.account.account", compact('user', 'searchId', 'searchName'));
     }
 
     /**

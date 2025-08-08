@@ -22,6 +22,10 @@ return new class extends Migration
             // $table->text("review")->nullable();
             $table->text("amenities");
             $table->boolean("isInUse")->default(0);
+            $table->float("room_area")->nullable(); // diện tích phòng
+            $table->float("bathroom_area")->nullable(); // diện tích phòng tắm và nhà vệ sinh
+            $table->integer("max_guests")->nullable(); // số lượng khách tối đa
+            $table->integer("bed_count")->nullable(); // số lượng giường
             $table->timestamps();
         });
     }

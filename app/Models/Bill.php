@@ -31,5 +31,8 @@ class Bill extends Model
     // Định dạng thời gian nếu muốn (không bắt buộc)
     protected $casts = [
         'payment_date' => 'datetime',
+        'booking_date' => 'datetime',
+        'checkin' => 'datetime',
+        'checkout' => 'datetime',
     ];
 }
