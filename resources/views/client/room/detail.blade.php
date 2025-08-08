@@ -25,53 +25,68 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="room-details-item">
-                    <img src="{{ asset(url("")) }}/storage/upload/{{ $room->pimage }}" alt="">
-                    <div class="rd-text">
-                        <div class="rd-title">
-                            <h3>{{ $room->name }}</h3>
-                            <div class="rdt-right">
-                                <div class="rating">
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star-half_alt"></i>
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="row g-0">
+                            <div class="col-md-5">
+                                <img src="{{ asset('storage/upload/' . $room->pimage) }}" class="img-fluid rounded-start h-100 w-100" style="object-fit: cover;" alt="{{ $room->name }}">
+                            </div>
+                            <div class="col-md-7 d-flex">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h3 class="card-title mb-0">{{ $room->name }}</h3>
+                                            <a class="btn btn-primary" href="{{ route('dathang.form', ['id' => $room->id]) }}">
+                                                <i class="bi bi-calendar-check me-1"></i> Đặt ngay
+                                            </a>
+                                        </div>
+                                        <div class="d-flex align-items-center text-warning mb-3">
+                                            <i class="bi bi-star-fill me-1"></i>
+                                            <i class="bi bi-star-fill me-1"></i>
+                                            <i class="bi bi-star-fill me-1"></i>
+                                            <i class="bi bi-star-fill me-1"></i>
+                                            <i class="bi bi-star-half"></i>
+                                        </div>
+                                        <h4 class="text-danger">
+                                            {{ number_format($room->base_price, 0, ',', '.') }}
+                                            <small class="text-muted">VND/Đêm</small>
+                                        </h4>
+                                        <div class="row mt-3">
+                                            <div class="col-sm-6 mb-2">
+                                                <small class="text-muted d-block">Kích thước</small>
+                                                <span class="fw-semibold">{{ $room->room_area ?? '30 m²' }}</span>
+                                            </div>
+                                            <div class="col-sm-6 mb-2">
+                                                <small class="text-muted d-block">Sức chứa</small>
+                                                <span class="fw-semibold">{{ $room->max_guests ?? '5' }} khách</span>
+                                            </div>
+                                            <div class="col-sm-6 mb-2">
+                                                <small class="text-muted d-block">Giường</small>
+                                                <span class="fw-semibold">{{ $room->bed_count ?? '1' }} giường</span>
+                                            </div>
+                                            <div class="col-sm-6 mb-2">
+                                                <small class="text-muted d-block">Khách sạn</small>
+                                                <span class="fw-semibold">{{ $room->hotel->name ?? '—' }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <small class="text-muted d-block">Tiện ích</small>
+                                            <div class="fw-semibold">{{ $room->amenities }}</div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <small class="text-muted d-block">Mô tả</small>
+                                            <p class="mb-0">{{ $room->description }}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <a href="{{ route('dathang.form', ['id' => $room->id]) }}">Đặt ngay</a>
                             </div>
                         </div>
-                        <h2>{{ number_format($room->base_price,0,",",".")}}<span>VND/Đêm</span></h2>
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td class="r-o">Size:</td>
-                                    <td>30 ft</td>
-                                </tr>
-                                <tr>
-                                    <td class="r-o">Capacity:</td>
-                                    <td>Max persion 5</td>
-                                </tr>
-                                <tr>
-                                    <td class="r-o">Bed:</td>
-                                    <td>King Beds</td>
-                                </tr>
-                                <tr>
-                                    <td class="r-o">Tiện ích:</td>
-                                    <td>{{ $room->amenities }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p class="f-para">
-                            {{ $room->description }}
-                        </p>
                     </div>
                 </div>
                 <div class="imglist">
-                    <h4>Ảnh</h4>
-                    <div class="image-item">
+                    <h4 class="mb-3">Ảnh</h4>
+                    <div class="d-flex flex-wrap gap-2">
                         @foreach ($imglist as $khoanh)
-                        <img src="{{ asset(url("")) }}/storage/upload/{{ $khoanh->imgname }}" alt="" style="width: 100px; height: 100px; margin-right: 10px;">
-
+                        <img src="{{ asset('storage/upload/' . $khoanh->imgname) }}" alt="{{ $room->name }}" class="rounded" style="width: 120px; height: 120px; object-fit: cover;">
                         @endforeach
                     </div>
                 </div>

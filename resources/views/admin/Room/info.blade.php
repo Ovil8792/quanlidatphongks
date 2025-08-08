@@ -1,88 +1,128 @@
 @extends("admin.layout.main")
 
 @section("main")
-{{-- room info page --}}
-<style>
-    .row>*{
-      padding-left:4px!important;
-      padding-top:5px
-    }
-    .imgcont{
-            position: relative;
-    display: inline-block; /* để vừa khít ảnh */
-    width: auto; /* hoặc auto */
-    }
-    .image-group img {
-        margin-right: 10px;
-        margin-bottom: 10px;
-        border-radius: 4px;
-    }
-    .image-group{
-        margin:3px;
-        border:1px solid black;
-        border-radius: 5px;
-    }
-        .room-box {
-        border: 1px solid #ccc;
-        padding: 15px;
-        margin-bottom: 20px;
-        /* position: absolute; */
-    }
-        .topimg{
-     /* margin:-126px -1px 72px -20px ;    */
-         position: absolute;
-    top: 0px;
-    right: 0px;
-    /* background: rgba(255, 0, 0, 0.8); */
-    color: black;
-    /* padding: 1px 22px; */
-    /* border-radius: 50%; */
-    /* font-weight: bold; */
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    }
-        .imgcont{
-            position: relative;
-    display: inline-block; /* để vừa khít ảnh */
-    width: auto; /* hoặc auto */
-    }
-</style>
-{{-- ở đây viết thông tin phòng --}}
-
-{{-- {{ $roominf }} --}}
-<h3>Mã phòng: {{ $roominf->id}}</h3>
-<h3>Tên: {{ $roominf->name}}</h3>
-<h3>Danh mục: {{ $roominf->category_name}}</h3>
-<h3>Mô tả: <span>{{ $roominf->description}}</span></h3>
-<h3>Giá gốc: {{ number_format($roominf->base_price,0,",",".") }} VND</h3>
-
-<h3>Tiện ích phòng: <span>{{ $roominf->amenities }}</span></h3>
-<h3>Khách sạn: {{ $roominf->hotel_name }}</h3>
-<h3>Tình trạng: {{ $roominf->isInUse==0?"Phòng trống":"Phòng đang sử dụng" }}</h3>
-
-
-
-{{-- ở đây show toàn bộ ảnh của phòng, có nút thêm ảnh --}}
-<hr>
-<h2>Ảnh phòng:</h2>
-<a href="{{ route("admin.tostorepic",["id"=>$id]) }}" class="btn btn-primary">Thêm ảnh</a>
-<div class="room-box row row-cols-6">
-{{-- {{ $imglist }} --}}
-@foreach ($imglist as $img)
-    <div class="image-group">
-        <div class="imgcont">
-            <img src="{{ asset(url(""))."/storage/upload/".$img->imgname }}" width="200">
-            <a class="topimg" onclick="if(confirm('Bạn có chắc muốn xóa ảnh này?')) document.getElementById('delete-form-{{ $img->id }}').submit(); return false;"><svg class="delicon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-</svg></a>
-<form id="delete-form-{{ $img->id }}" action="{{ route('storage.sdelimg', $img->id) }}" method="POST" style="display: none;">
-            @csrf
-            @method('DELETE')
-        </form>
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-xl-10">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+              <div class="bg-primary bg-opacity-10 rounded-circle p-3"><i class="bi bi-door-open text-primary fs-4"></i></div>
+              <div>
+                <h5 class="mb-1">Phòng #{{ $roominf->id }} — {{ $roominf->name }}</h5>
+                <div class="text-muted">Danh mục: <strong>{{ $roominf->category_name }}</strong> • Khách sạn: <strong>{{ $roominf->hotel_name }}</strong></div>
+              </div>
+            </div>
+            <div>
+              <span class="badge {{ $roominf->isInUse==0 ? 'bg-success' : 'bg-warning' }}">
+                {{ $roominf->isInUse==0? 'Phòng trống' : 'Đang sử dụng' }}
+              </span>
+            </div>
+          </div>
         </div>
+        <div class="card-body">
+          @if($roominf->isInUse == 1 && $activeBooking)
+            <div class="alert alert-info mb-4">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-calendar-event fs-4 me-3"></i>
+                <div>
+                  <h6 class="mb-1">Phòng đã được đặt</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <small class="text-muted d-block">Khách hàng</small>
+                      <div class="fw-semibold">{{ $activeBooking->bill->user->name ?? $activeBooking->bill->guest_name ?? 'Không có tên' }}</div>
+                    </div>
+                    <div class="col-md-6">
+                      <small class="text-muted d-block">Số điện thoại</small>
+                      <div class="fw-semibold">{{ $activeBooking->bill->guest_phone ?? '—' }}</div>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col-md-6">
+                      <small class="text-muted d-block">Ngày nhận phòng</small>
+                      <div class="fw-semibold">
+                        @if($activeBooking->bill->checkin)
+                          {{ $activeBooking->bill->checkin instanceof \Carbon\Carbon ? $activeBooking->bill->checkin->format('d/m/Y H:i') : \Carbon\Carbon::parse($activeBooking->bill->checkin)->format('d/m/Y H:i') }}
+                        @else
+                          Không rõ
+                        @endif
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <small class="text-muted d-block">Ngày trả phòng</small>
+                      <div class="fw-semibold">
+                        @if($activeBooking->bill->checkout)
+                          {{ $activeBooking->bill->checkout instanceof \Carbon\Carbon ? $activeBooking->bill->checkout->format('d/m/Y H:i') : \Carbon\Carbon::parse($activeBooking->bill->checkout)->format('d/m/Y H:i') }}
+                        @else
+                          Không rõ
+                        @endif
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          @endif
+          <div class="row g-4">
+            <div class="col-lg-5">
+              <img src="{{ asset('storage/upload/'.$roominf->pimage) }}" class="img-fluid rounded w-100" style="object-fit: cover; max-height: 320px;" alt="{{ $roominf->name }}">
+            </div>
+            <div class="col-lg-7">
+              <div class="row">
+                <div class="col-sm-6 mb-3">
+                  <small class="text-muted d-block">Giá gốc</small>
+                  <div class="fs-5 fw-semibold text-danger">{{ number_format($roominf->base_price,0,',','.') }} VND</div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                  <small class="text-muted d-block">Diện tích</small>
+                  <div class="fw-semibold">{{ $roominf->room_area ?? '—' }} m²</div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                  <small class="text-muted d-block">Giường</small>
+                  <div class="fw-semibold">{{ $roominf->bed_count ?? '—' }}</div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                  <small class="text-muted d-block">Số khách tối đa</small>
+                  <div class="fw-semibold">{{ $roominf->max_guests ?? '—' }}</div>
+                </div>
+              </div>
+              <div class="mt-2">
+                <small class="text-muted d-block">Tiện ích</small>
+                <div class="fw-semibold">{{ $roominf->amenities }}</div>
+              </div>
+              <div class="mt-2">
+                <small class="text-muted d-block">Mô tả</small>
+                <p class="mb-0">{{ $roominf->description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Ảnh phòng</h5>
+          <a href="{{ route('admin.tostorepic',['id'=>$id]) }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i> Thêm ảnh</a>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-wrap gap-2">
+            @foreach ($imglist as $img)
+              <div class="position-relative">
+                <img src="{{ asset('storage/upload/'.$img->imgname) }}" class="rounded" style="width: 180px; height: 120px; object-fit: cover;">
+                <a class="btn btn-sm btn-light position-absolute top-0 end-0 m-1" onclick="if(confirm('Bạn có chắc muốn xóa ảnh này?')) document.getElementById('delete-form-{{ $img->id }}').submit(); return false;">
+                  <i class="bi bi-trash text-danger"></i>
+                </a>
+                <form id="delete-form-{{ $img->id }}" action="{{ route('storage.sdelimg', $img->id) }}" method="POST" style="display: none;">
+                  @csrf
+                  @method('DELETE')
+                </form>
+              </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
     </div>
-@endforeach
+  </div>
 </div>
 @endsection

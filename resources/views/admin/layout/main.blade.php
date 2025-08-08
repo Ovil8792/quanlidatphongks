@@ -1,358 +1,381 @@
-<html lang="en">
-
+<!DOCTYPE html>
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" href="{{ asset(url("")) }}/admin/images/favicon.svg" type="image/x-icon" />
-  <title>Trang quản trị</title>
-
-  <!-- ========== All CSS files linkup ========= -->
-  <link rel="stylesheet" href="{{ asset(url("")) }}/admin/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="{{ asset(url("")) }}/admin/css/lineicons.css" rel="stylesheet" type="text/css" />
-  <link rel="stylesheet" href="{{ asset(url("")) }}/admin/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
-  <link rel="stylesheet" href="{{ asset(url("")) }}/admin/css/fullcalendar.css" />
-  <link rel="stylesheet" href="{{ asset(url("")) }}/admin/css/fullcalendar.css" />
-  <link rel="stylesheet" href="{{ asset(url("")) }}/admin/css/main.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Quản lý đặt phòng KS</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-bg: #f8fafc;
+            --dark-bg: #1e293b;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--light-bg);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: white;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+        
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        /* Header */
+        .top-header {
+            background: white;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-bg);
+            margin: 0;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* Content Area */
+        .content-wrapper {
+            padding: 2rem;
+        }
+        
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .card-header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 1rem 1rem 0 0;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-bg);
+            margin: 0;
+        }
+        
+        /* Tables */
+        .table {
+            margin: 0;
+        }
+        
+        .table th {
+            background-color: #f8fafc;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .table td {
+            padding: 1rem;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        /* Buttons */
+        .btn {
+            border-radius: 0.5rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .btn-warning {
+            background: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        /* Forms */
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--dark-bg);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Utilities */
+        .text-primary { color: var(--primary-color) !important; }
+        .text-secondary { color: var(--secondary-color) !important; }
+        .text-success { color: var(--success-color) !important; }
+        .text-warning { color: var(--warning-color) !important; }
+        .text-danger { color: var(--danger-color) !important; }
+        
+        .bg-light { background-color: var(--light-bg) !important; }
+        .bg-white { background-color: white !important; }
+        
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 
 <body>
-  <!-- ======== Preloader =========== -->
-  <div id="preloader">
-    <div class="spinner"></div>
-  </div>
-  <!-- ======== Preloader =========== -->
-
-    <!-- ======== sidebar-nav start =========== -->
-    <aside class="sidebar-nav-wrapper">
-      <div class="navbar-logo">
-        <a href="{{ route("admin.index") }}">
-          <img src="{{ asset(url("")) }}/admin/images/logo/logo.svg" alt="logo" />
-        </a>
-      </div>
-      <nav class="sidebar-nav">
-        <ul>
-          <li class="nav-item nav-item-has-children">
-            <a
-              href="#0"
-              data-bs-toggle="collapse"
-              data-bs-target="#ddmenu_1"
-              aria-controls="ddmenu_1"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span class="icon">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M8.74999 18.3333C12.2376 18.3333 15.1364 15.8128 15.7244 12.4941C15.8448 11.8143 15.2737 11.25 14.5833 11.25H9.99999C9.30966 11.25 8.74999 10.6903 8.74999 10V5.41666C8.74999 4.7263 8.18563 4.15512 7.50586 4.27556C4.18711 4.86357 1.66666 7.76243 1.66666 11.25C1.66666 15.162 4.83797 18.3333 8.74999 18.3333Z" />
-                  <path
-                    d="M17.0833 10C17.7737 10 18.3432 9.43708 18.2408 8.75433C17.7005 5.14918 14.8508 2.29947 11.2457 1.75912C10.5629 1.6568 10 2.2263 10 2.91665V9.16666C10 9.62691 10.3731 10 10.8333 10H17.0833Z" />
-                </svg>
-              </span>
-              <span class="text">Dashboard</span>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <a href="{{ route('admin.index') }}" class="sidebar-brand">
+                <i class="bi bi-building"></i> Admin Panel
             </a>
-            <ul id="ddmenu_1" class="collapse show dropdown-nav">
-              <li >
-                <a id="cate" href="{{ route("admin.category") }}" > Danh mục </a>
-                <!-- class="active" -->
-              </li>
-              <li >
-                <a id="rooms" href="{{ route("admin.roomlist") }}">Các phòng</a>
-              </li>
-              <li >
-                <a id="acc" href="{{ route("admin.account") }}"> Tài khoản </a>
-              </li>
-              <li >
-                <a id="imgst" href="{{ route("storage.image") }}"> Kho ảnh </a>
-              </li>
-              <li >
-                <a id="trash" href="{{ route("storage.trashedimg") }}"> Thùng rác </a>
-              </li>
-              <li>
-                <a id="contact" href="{{ route("admin.contact") }}">Liên hệ</a>
-              </li>
-              <li><a href="{{ route("admin.bills.index") }}" id="bill">Hóa đơn</a></li>
-              <li><a href="{{ route("admin.hotel") }}" id="hotel">Khách sạn</a></li>
-            </ul>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    <div class="overlay"></div>
-    <!-- ======== sidebar-nav end =========== -->
-
-  <!-- ======== main-wrapper start =========== -->
-  <main class="main-wrapper">
-    <!-- ========== header start ========== -->
-    <header class="header">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-lg-5 col-md-5 col-6">
-            <div class="header-left d-flex align-items-center">
-              <a onclick="history.back()" href="#"><span class="mdi mdi-arrow-left"></span>Quay lại trang trước</a>
-              <div class="menu-toggle-btn mr-15">
-                <button id="menu-toggle" class="main-btn primary-btn btn-hover">
-                  <i class="lni lni-chevron-left me-2"></i> Menu
-                </button>
-              </div>
-              <div class="header-search d-none d-md-flex">
-                <form action="#">
-                  <input type="text" placeholder="Search..." />
-                  <button><i class="lni lni-search-alt"></i></button>
-                </form>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-7 col-md-7 col-6">
-            <div class="header-right">
-              <!-- notification start -->
-              <div class="notification-box ml-15 d-none d-md-flex">
-                <button class="dropdown-toggle" type="button" id="notification" data-bs-toggle="dropdown"
-                  aria-expanded="false">
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M11 20.1667C9.88317 20.1667 8.88718 19.63 8.23901 18.7917H13.761C13.113 19.63 12.1169 20.1667 11 20.1667Z"
-                      fill="" />
-                    <path
-                      d="M10.1157 2.74999C10.1157 2.24374 10.5117 1.83333 11 1.83333C11.4883 1.83333 11.8842 2.24374 11.8842 2.74999V2.82604C14.3932 3.26245 16.3051 5.52474 16.3051 8.24999V14.287C16.3051 14.5301 16.3982 14.7633 16.564 14.9352L18.2029 16.6342C18.4814 16.9229 18.2842 17.4167 17.8903 17.4167H4.10961C3.71574 17.4167 3.5185 16.9229 3.797 16.6342L5.43589 14.9352C5.6017 14.7633 5.69485 14.5301 5.69485 14.287V8.24999C5.69485 5.52474 7.60672 3.26245 10.1157 2.82604V2.74999Z"
-                      fill="" />
-                  </svg>
-                  <span></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notification">
-                  <li>
-                    <a href="#0">
-                      <div class="image">
-                        <img src="{{ asset(url("")) }}/admin/images/lead/lead-6.png" alt="" />
-                      </div>
-                      <div class="content">
-                        <h6>
-                          John Doe
-                          <span class="text-regular">
-                            comment on a product.
-                          </span>
-                        </h6>
-                        <p>
-                          Lorem ipsum dolor sit amet, consect etur adipiscing
-                          elit Vivamus tortor.
-                        </p>
-                        <span>10 mins ago</span>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#0">
-                      <div class="image">
-                        <img src="{{ asset(url("")) }}/admin/images/lead/lead-1.png" alt="" />
-                      </div>
-                      <div class="content">
-                        <h6>
-                          Jonathon
-                          <span class="text-regular">
-                            like on a product.
-                          </span>
-                        </h6>
-                        <p>
-                          Lorem ipsum dolor sit amet, consect etur adipiscing
-                          elit Vivamus tortor.
-                        </p>
-                        <span>10 mins ago</span>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <!-- notification end -->
-              <!-- message start -->
-              <div class="header-message-box ml-15 d-none d-md-flex">
-                <button class="dropdown-toggle" type="button" id="message" data-bs-toggle="dropdown"
-                  aria-expanded="false">
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M7.74866 5.97421C7.91444 5.96367 8.08162 5.95833 8.25005 5.95833C12.5532 5.95833 16.0417 9.4468 16.0417 13.75C16.0417 13.9184 16.0364 14.0856 16.0259 14.2514C16.3246 14.138 16.6127 14.003 16.8883 13.8482L19.2306 14.629C19.7858 14.8141 20.3141 14.2858 20.129 13.7306L19.3482 11.3882C19.8694 10.4604 20.1667 9.38996 20.1667 8.25C20.1667 4.70617 17.2939 1.83333 13.75 1.83333C11.0077 1.83333 8.66702 3.55376 7.74866 5.97421Z"
-                      fill="" />
-                    <path
-                      d="M14.6667 13.75C14.6667 17.2938 11.7939 20.1667 8.25004 20.1667C7.11011 20.1667 6.03962 19.8694 5.11182 19.3482L2.76946 20.129C2.21421 20.3141 1.68597 19.7858 1.87105 19.2306L2.65184 16.8882C2.13062 15.9604 1.83338 14.89 1.83338 13.75C1.83338 10.2062 4.70622 7.33333 8.25004 7.33333C11.7939 7.33333 14.6667 10.2062 14.6667 13.75ZM5.95838 13.75C5.95838 13.2437 5.54797 12.8333 5.04171 12.8333C4.53545 12.8333 4.12504 13.2437 4.12504 13.75C4.12504 14.2563 4.53545 14.6667 5.04171 14.6667C5.54797 14.6667 5.95838 14.2563 5.95838 13.75ZM9.16671 13.75C9.16671 13.2437 8.7563 12.8333 8.25004 12.8333C7.74379 12.8333 7.33338 13.2437 7.33338 13.75C7.33338 14.2563 7.74379 14.6667 8.25004 14.6667C8.7563 14.6667 9.16671 14.2563 9.16671 13.75ZM11.4584 14.6667C11.9647 14.6667 12.375 14.2563 12.375 13.75C12.375 13.2437 11.9647 12.8333 11.4584 12.8333C10.9521 12.8333 10.5417 13.2437 10.5417 13.75C10.5417 14.2563 10.9521 14.6667 11.4584 14.6667Z"
-                      fill="" />
-                  </svg>
-                  <span></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="message">
-                  <li>
-                    <a href="#0">
-                      <div class="image">
-                        <img src="{{ asset(url("")) }}/admin/images/lead/lead-5.png" alt="" />
-                      </div>
-                      <div class="content">
-                        <h6>Jacob Jones</h6>
-                        <p>Hey!I can across your profile and ...</p>
-                        <span>10 mins ago</span>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#0">
-                      <div class="image">
-                        <img src="{{ asset(url("")) }}/admin/images/lead/lead-3.png" alt="" />
-                      </div>
-                      <div class="content">
-                        <h6>John Doe</h6>
-                        <p>Would you mind please checking out</p>
-                        <span>12 mins ago</span>
-                      </div>
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#0">
-                      <div class="image">
-                        <img src="{{ asset(url("")) }}/admin/images/lead/lead-2.png" alt="" />
-                      </div>
-                      <div class="content">
-                        <h6>Anee Lee</h6>
-                        <p>Hey! are you available for freelance?</p>
-                        <span>1h ago</span>
-                      </div>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-              <!-- message end -->
-              <!-- profile start -->
-              <div class="profile-box ml-15">
-                <button class="dropdown-toggle bg-transparent border-0" type="button" id="profile"
-                  data-bs-toggle="dropdown" aria-expanded="false">
-                  <div class="profile-info">
-                    <div class="info">
-                      <div class="image">
-                        <img src="{{ asset(url("")) }}/admin/images/profile/profile-image.png" alt="" />
-                      </div>
-                      <div>
-                        <span class="name"></span>
-                        <p>Admin</p>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profile">
-                  <li>
-                    <div class="author-info flex items-center !p-1">
-                      <div class="image">
-                        <img src="{{ asset(url("")) }}/admin/images/profile/profile-image.png" alt="image">
-                      </div>
-                      <div class="content">
-                        <h4 class="text-sm">Adam Joe</h4>
-                        <a class="text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white text-xs" href="#">Email@gmail.com</a>
-                      </div>
-                    </div>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                    <a href="#0">
-                      <i class="lni lni-user"></i> View Profile
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#0">
-                      <i class="lni lni-alarm"></i> Notifications
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#0"> <i class="lni lni-inbox"></i> Messages </a>
-                  </li>
-                  <li>
-                    <a href="#0"> <i class="lni lni-cog"></i> Settings </a>
-                  </li>
-                  <li class="divider"></li>
-                  <li>
-                    <a href="{{ route('logout') }}"> <i class="lni lni-exit"></i> Sign Out </a>
-                  </li>
-                </ul>
-              </div>
-              <!-- profile end -->
-            </div>
-          </div>
         </div>
-      </div>
-    </header>
-    <!-- ========== header end ========== -->
-
-
-    @yield("main")
-
-
-    <!-- ========== footer start =========== -->
-    <footer class="footer">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-6 order-last order-md-first">
-            <div class="copyright text-center text-md-start">
-              <p class="text-sm">
-                Designed and Developed by
-                <a href="https://plainadmin.com" rel="nofollow" target="_blank">
-                  PlainAdmin
+        
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a href="{{ route('admin.category') }}" class="nav-link {{ request()->routeIs('admin.category') ? 'active' : '' }}">
+                    <i class="bi bi-grid"></i>
+                    <span>Danh mục</span>
                 </a>
-              </p>
             </div>
-          </div>
-          <!-- end col-->
-          <div class="col-md-6">
-            <div class="terms d-flex justify-content-center justify-content-md-end">
-              <a href="#0" class="text-sm">Term & Conditions</a>
-              <a href="#0" class="text-sm ml-15">Privacy & Policy</a>
+            
+            <div class="nav-item">
+                <a href="{{ route('admin.roomlist') }}" class="nav-link {{ request()->routeIs('admin.roomlist*') ? 'active' : '' }}">
+                    <i class="bi bi-door-open"></i>
+                    <span>Quản lý phòng</span>
+                </a>
             </div>
-          </div>
+            
+            <div class="nav-item">
+                <a href="{{ route('admin.account') }}" class="nav-link {{ request()->routeIs('admin.account*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i>
+                    <span>Tài khoản</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{{ route('storage.image') }}" class="nav-link {{ request()->routeIs('storage.image*') ? 'active' : '' }}">
+                    <i class="bi bi-images"></i>
+                    <span>Kho ảnh</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{{ route('storage.trashedimg') }}" class="nav-link {{ request()->routeIs('storage.trashedimg*') ? 'active' : '' }}">
+                    <i class="bi bi-trash"></i>
+                    <span>Thùng rác</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{{ route('admin.contact') }}" class="nav-link {{ request()->routeIs('admin.contact*') ? 'active' : '' }}">
+                    <i class="bi bi-envelope"></i>
+                    <span>Liên hệ</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{{ route('admin.bills.index') }}" class="nav-link {{ request()->routeIs('admin.bills*') ? 'active' : '' }}">
+                    <i class="bi bi-receipt"></i>
+                    <span>Hóa đơn</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{{ route('admin.hotel') }}" class="nav-link {{ request()->routeIs('admin.hotel*') ? 'active' : '' }}">
+                    <i class="bi bi-building"></i>
+                    <span>Khách sạn</span>
+                </a>
+            </div>
         </div>
-        <!-- end row -->
-      </div>
-      <!-- end container -->
-    </footer>
-    <!-- ========== footer end =========== -->
-  </main>
-  <!-- ======== main-wrapper end =========== -->
+    </nav>
 
-  <!-- ========= All Javascript files linkup ======== -->
-  <script src="{{ asset(url("")) }}/admin/js/bootstrap.bundle.min.js"></script>
-  <script src="{{ asset(url("")) }}/admin/js/Chart.min.js"></script>
-  <script src="{{ asset(url("")) }}/admin/js/dynamic-pie-chart.js"></script>
-  <script src="{{ asset(url("")) }}/admin/js/moment.min.js"></script>
-  <script src="{{ asset(url("")) }}/admin/js/fullcalendar.js"></script>
-  {{-- <script src="{{ asset(url("")) }}/admin/js/jvectormap.min.js"></script> --}}
-  {{-- <script src="{{ asset(url("")) }}/admin/js/world-merc.js"></script> --}}
-  <script src="{{ asset(url("")) }}/admin/js/polyfill.js"></script>
-  <script src="{{ asset(url("")) }}/admin/js/main.js"></script>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="header-title">@yield('page-title', 'Dashboard')</h1>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                            Admin
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Hồ sơ</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Cài đặt</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('logout') }}"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
 
+        <!-- Content -->
+        <div class="content-wrapper fade-in">
+            @yield('main')
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
     <script>
-      // ======== jvectormap activation
-      let jso = @json(session("check"));
-      // console.log(jso);
-      const cur = document.getElementById("check");
-      if(cur){
-      if(jso.includes(cur.innerText)){
-        document.getElementById(cur.innerText).classList.add("active");
-      }
-    }
-      var markers = [
-        { name: "Egypt", coords: [26.8206, 30.8025] },
-        { name: "Russia", coords: [61.524, 105.3188] },
-        { name: "Canada", coords: [56.1304, -106.3468] },
-        { name: "Greenland", coords: [71.7069, -42.6043] },
-        { name: "Brazil", coords: [-14.235, -51.9253] },
-      ];
-
-    // ====== calendar activation
-    document.addEventListener("DOMContentLoaded", function() {
-      
-      var calendarMiniEl = document.getElementById("calendar-mini");
-      var calendarMini = new FullCalendar.Calendar(calendarMiniEl, {
-        initialView: "dayGridMonth",
-        headerToolbar: {
-          end: "today prev,next",
-        },
-      });
-      calendarMini.render();
-    });
-    // console.log(jso);
-  </script>
+        // Mobile sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            // Add mobile menu button if needed
+            if (window.innerWidth <= 768) {
+                const mobileMenuBtn = document.createElement('button');
+                mobileMenuBtn.className = 'btn btn-primary d-md-none position-fixed';
+                mobileMenuBtn.style.cssText = 'top: 1rem; left: 1rem; z-index: 1001;';
+                mobileMenuBtn.innerHTML = '<i class="bi bi-list"></i>';
+                mobileMenuBtn.onclick = function() {
+                    sidebar.classList.toggle('show');
+                };
+                document.body.appendChild(mobileMenuBtn);
+            }
+        });
+    </script>
 </body>
-
 </html>

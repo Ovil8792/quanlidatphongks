@@ -23,8 +23,8 @@
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">Khách sạn: <strong>{{ $room->hotel->name ?? 'Không xác định' }}</strong></li>
                 <li class="list-group-item">Phòng: <strong>{{ $room->name }}</strong></li>
-                <li class="list-group-item">Nhận phòng: {{ \Carbon\Carbon::parse($booking['checkin'])->format('d/m/Y') }}</li>
-                <li class="list-group-item">Trả phòng: {{ \Carbon\Carbon::parse($booking['checkout'])->format('d/m/Y') }}</li>
+                <li class="list-group-item">Nhận phòng: {{ \Carbon\Carbon::parse($booking['checkin'])->format('d/m/Y H:i') }}</li>
+                <li class="list-group-item">Trả phòng: {{ \Carbon\Carbon::parse($booking['checkout'])->format('d/m/Y H:i') }}</li>
                 <li class="list-group-item text-danger fw-bold">Tổng tiền: {{ number_format($booking['total']) }} đ</li>
             </ul>
         </div>

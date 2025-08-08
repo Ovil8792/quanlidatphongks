@@ -10,11 +10,21 @@ class CategoryController extends Controller
  /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $cat = Category::get();
-        // dd($cat);
-        return view("admin.category.category",compact("cat"));
+        $searchId = $request->query('search_id');
+        $searchName = $request->query('search_name');
+
+        $query = Category::query();
+        if (!empty($searchId)) {
+            $query->where('id', (int) $searchId);
+        }
+        if (!empty($searchName)) {
+            $query->where('name', 'like', '%'.$searchName.'%');
+        }
+
+        $cat = $query->get();
+        return view("admin.category.category", compact("cat", "searchId", "searchName"));
     }
 
     /**

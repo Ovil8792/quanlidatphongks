@@ -29,13 +29,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Ngày nhận phòng *</label>
-                        <input type="date" name="checkin" id="checkin" class="form-control" required>
+                        <label class="form-label">Ngày giờ nhận phòng *</label>
+                        <input type="datetime-local" name="checkin" id="checkin" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Ngày trả phòng *</label>
-                        <input type="date" name="checkout" id="checkout" class="form-control" required>
+                        <label class="form-label">Ngày giờ trả phòng *</label>
+                        <input type="datetime-local" name="checkout" id="checkout" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
