@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->float('room_area')->nullable()->after('isInUse');
-            $table->float('bathroom_area')->nullable()->after('room_area');
-            $table->integer('max_guests')->nullable()->after('bathroom_area');
-            $table->integer('bed_count')->nullable()->after('max_guests');
+            if (Schema::hasColumn('rooms', 'hotel_id')) {
+                $table->dropForeign(['hotel_id']);
+                $table->dropColumn('hotel_id');
+            }
         });
     }
 
@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->dropColumn(['room_area', 'bathroom_area', 'max_guests', 'bed_count']);
+            $table->foreignId('hotel_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 };

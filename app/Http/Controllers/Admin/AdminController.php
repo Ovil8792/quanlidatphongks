@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
-// use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\view;
 
 class AdminController extends Controller
 {
@@ -16,7 +14,7 @@ class AdminController extends Controller
     public function index()
     {
         session()->flush();
-        $data = ["cate","rooms","imgst","trash","acc","contact","bill","hotel"];
+        $data = ["cate","rooms","ameni","imgst","trash","acc","contact","bill"];
         session(["check"=>$data]);
         return view("admin.index");
     }

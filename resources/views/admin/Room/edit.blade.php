@@ -43,6 +43,24 @@
                                 </div>
                                 
                                 <div class="mb-3">
+                                    <label for="code" class="form-label">Mã phòng <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('code') is-invalid @enderror" 
+                                           id="code" name="code" value="{{ old('code', $roomdata->code) }}" required>
+                                    @error('code')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="floor" class="form-label">Tầng <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('floor') is-invalid @enderror" 
+                                           id="floor" name="floor" value="{{ old('floor', $roomdata->floor) }}" required>
+                                    @error('floor')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div class="mb-3">
                                     <label for="category" class="form-label">Danh mục <span class="text-danger">*</span></label>
                                     <select class="form-select @error('category') is-invalid @enderror" 
                                             id="category" name="category" required>
@@ -121,10 +139,108 @@
                                               placeholder="Mô tả chi tiết về phòng...">{{ old('desc', $roomdata->description) }}</textarea>
                                 </div>
                                 
+                                @php
+                                    $predefinedAmenities = ['WiFi', 'TV', 'Máy lạnh', 'Máy sưởi', 'Ban công', 'Minibar', 'Két an toàn', 'Máy sấy tóc'];
+                                    $currentAmenities = $roomdata->amenities ? explode(', ', $roomdata->amenities) : [];
+                                    $customAmenities = array_filter($currentAmenities, function($amenity) use ($predefinedAmenities) {
+                                        return !in_array(trim($amenity), $predefinedAmenities);
+                                    });
+                                    $customAmenitiesText = implode(', ', $customAmenities);
+                                @endphp
+                                
                                 <div class="mb-3">
                                     <label for="amenities" class="form-label">Tiện ích phòng</label>
-                                    <textarea class="form-control" id="amenities" name="amenities" rows="3" 
-                                              placeholder="Liệt kê các tiện ích có sẵn...">{{ old('amenities', $roomdata->amenities) }}</textarea>
+                                    
+                                    <!-- Tiện ích có sẵn -->
+                                    <div class="mb-3">
+                                        <label class="form-label fw-semibold text-muted">Tiện ích có sẵn:</label>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="wifi" name="amenities_checkbox[]" value="WiFi" {{ in_array('WiFi', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="wifi">WiFi miễn phí</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="tv" name="amenities_checkbox[]" value="TV" {{ in_array('TV', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="tv">TV màn hình phẳng</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="ac" name="amenities_checkbox[]" value="Máy lạnh" {{ in_array('Máy lạnh', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="ac">Máy lạnh</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="heater" name="amenities_checkbox[]" value="Máy sưởi" {{ in_array('Máy sưởi', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="heater">Máy sưởi</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="balcony" name="amenities_checkbox[]" value="Ban công" {{ in_array('Ban công', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="balcony">Ban công</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="minibar" name="amenities_checkbox[]" value="Minibar" {{ in_array('Minibar', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="minibar">Minibar</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="safe" name="amenities_checkbox[]" value="Két an toàn" {{ in_array('Két an toàn', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="safe">Két an toàn</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="hairdryer" name="amenities_checkbox[]" value="Máy sấy tóc" {{ in_array('Máy sấy tóc', old('amenities_checkbox', $currentAmenities)) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="hairdryer">Máy sấy tóc</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tiện ích tùy chỉnh -->
+                                    <div class="mb-2">
+                                        <label for="amenities_custom" class="form-label fw-semibold text-muted">Tiện ích khác:</label>
+                                        <textarea class="form-control" id="amenities_custom" name="amenities_custom" rows="2" 
+                                                  placeholder="Nhập các tiện ích khác (tùy chọn)...">{{ old('amenities_custom', $customAmenitiesText) }}</textarea>
+                                        <div class="form-text">Các tiện ích này sẽ được thêm vào danh sách tiện ích có sẵn</div>
+                                    </div>
+                                    
+                                    <!-- Hiển thị tiện ích đã chọn -->
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold text-muted">Tiện ích đã chọn:</label>
+                                        <div id="selectedAmenities" class="p-2 bg-light rounded border">
+                                            @if($roomdata->amenities)
+                                                @foreach($currentAmenities as $amenity)
+                                                    @if(in_array(trim($amenity), $predefinedAmenities))
+                                                        <span class="badge bg-primary me-1 mb-1">{{ trim($amenity) }}</span>
+                                                    @endif
+                                                @endforeach
+                                                @if($customAmenitiesText)
+                                                    @foreach(explode(', ', $customAmenitiesText) as $customAmenity)
+                                                        <span class="badge bg-success me-1 mb-1">{{ trim($customAmenity) }}</span>
+                                                    @endforeach
+                                                @endif
+                                            @else
+                                                <span class="text-muted">Chưa có tiện ích nào được chọn</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Input ẩn để lưu tất cả tiện ích -->
+                                    <input type="hidden" id="amenities" name="amenities" value="{{ old('amenities', $roomdata->amenities) }}">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="requirements" class="form-label">Yêu cầu đặc biệt</label>
+                                    <textarea class="form-control" id="requirements" name="requirements" rows="2" 
+                                              placeholder="Các yêu cầu đặc biệt cho phòng...">{{ old('requirements', $roomdata->requirements) }}</textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Trạng thái phòng</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="available" {{ old('status', $roomdata->status) == 'available' ? 'selected' : '' }}>Có sẵn</option>
+                                        <option value="occupied" {{ old('status', $roomdata->status) == 'occupied' ? 'selected' : '' }}>Đã có khách</option>
+                                        <option value="maintenance" {{ old('status', $roomdata->status) == 'maintenance' ? 'selected' : '' }}>Bảo trì</option>
+                                        <option value="reserved" {{ old('status', $roomdata->status) == 'reserved' ? 'selected' : '' }}>Đã đặt trước</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -210,6 +326,45 @@ document.addEventListener('DOMContentLoaded', function() {
             imagePreview.classList.add('d-none');
         }
     });
+    
+    // Amenities handling
+    const amenitiesCheckboxes = document.querySelectorAll('input[name="amenities_checkbox[]"]');
+    const amenitiesCustom = document.getElementById('amenities_custom');
+    const selectedAmenitiesDiv = document.getElementById('selectedAmenities');
+    const amenitiesHiddenInput = document.getElementById('amenities');
+    
+    function updateSelectedAmenities() {
+        const selectedCheckboxes = Array.from(amenitiesCheckboxes).filter(cb => cb.checked);
+        const customText = amenitiesCustom.value.trim();
+        
+        let allAmenities = selectedCheckboxes.map(cb => cb.value);
+        if (customText) {
+            allAmenities.push(customText);
+        }
+        
+        // Cập nhật input ẩn
+        amenitiesHiddenInput.value = allAmenities.join(', ');
+        
+        // Cập nhật hiển thị
+        if (allAmenities.length > 0) {
+            selectedAmenitiesDiv.innerHTML = allAmenities.map(amenity => 
+                `<span class="badge bg-primary me-1 mb-1">${amenity}</span>`
+            ).join('');
+        } else {
+            selectedAmenitiesDiv.innerHTML = '<span class="text-muted">Chưa có tiện ích nào được chọn</span>';
+        }
+    }
+    
+    // Xử lý sự kiện checkbox
+    amenitiesCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectedAmenities);
+    });
+    
+    // Xử lý sự kiện textarea tùy chỉnh
+    amenitiesCustom.addEventListener('input', updateSelectedAmenities);
+    
+    // Khởi tạo hiển thị ban đầu
+    updateSelectedAmenities();
     
     // Form validation
     const form = document.querySelector('form');

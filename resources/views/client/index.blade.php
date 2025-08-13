@@ -52,26 +52,12 @@
                 placeholder="Nhập số người" min="1" />
         </div>
         <div class="select-option">
-            <label for="room">{{ __('messages.rn') }}:</label>
-            <select id="room" name="room">
-                <option value="1">1 Phòng</option>
-                <option value="2">2 Phòng</option>
-                <option value="3">3 Phòng</option>
-                <option value="4">4 Phòng</option>
-                <option value="10">10 Phòng</option>
+            <label for="search">Loại phòng:</label>
+            <select name="category_id" id="category_id">
+                @foreach ($cat as $category)
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
             </select>
-        </div>
-        <div class="select-option">
-            <label for="search">Vị trí:</label>
-            <div style="position: relative;">
-                <input id="search" name="keyword"
-                    style="border-radius: 2px; border: 1px solid #ebebeb; height: 50px; line-height: 50px; outline: none; padding-left: 20px; width: 100%; float: none;"
-                    type="search" class="form-control" placeholder="Tìm kiếm...">
-                <input type="hidden" name="selected_location" id="selectedLocation">
-                <ul id="suggestions"
-                    style="list-style: none; margin: 0; padding: 0; border: 1px solid #ebebeb; border-top: none; max-height: 200px; overflow-y: auto; width: 100%; position: absolute; top: 100%; left: 0; background: #fff; z-index: 1000; display: none;">
-                </ul>
-            </div>
         </div>
         <button type="submit">{{ __('messages.checkavai') }}</button>
     </form>
@@ -268,7 +254,7 @@
     </section>
     <!-- Blog Section End -->
 
-<section class="top-hotel-section">
+        <section class="top-room-section">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">

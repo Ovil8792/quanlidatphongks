@@ -5,46 +5,44 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Bill;
+use App\Models\DetailedBill;
 
 class PaymentController extends Controller
 {
-    public function index()
+    public function showPayment($billId)
     {
-        $booking = [
-            'room' => 5,
-            'check_in' => '2025-05-11',
-            'check_out' => '2025-05-16',
-            'base_price' => 200000,
-        ];
+        $bill = Bill::with(['details.room'])->findOrFail($billId);
+        
+        if ($bill->status !== 'pending') {
+            return redirect()->route('client.index')->with('error', 'Đơn hàng này không thể thanh toán.');
+        }
 
-        $checkIn = Carbon::parse($booking['check_in']);
-        $checkOut = Carbon::parse($booking['check_out']);
+        $checkIn = Carbon::parse($bill->checkin);
+        $checkOut = Carbon::parse($bill->checkout);
+        $nights = $checkOut->diffInDays($checkIn);
 
-        // Đảm bảo số đêm không bị âm
-        $nights = $checkOut->diffInDays($checkIn, true);
-
-
-        // Tính tổng tiền
-        $total = $nights * $booking['base_price'] * $booking['room'];
-
-        return view('client.payment', compact('booking', 'checkIn', 'checkOut', 'nights', 'total'));
+        return view('client.payment', compact('bill', 'checkIn', 'checkOut', 'nights'));
     }
 
-    public function processPayment(Request $request)
+    public function processVNPay(Request $request, $billId)
     {
-        $data = $request->all();
-        $code_cart = rand(00, 9999);
-        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_Returnurl = "http://localhost:8000/payment";
-        $vnp_TmnCode = "C5QKNTNE"; //Mã website tại VNPAY 
-        $vnp_HashSecret = "T3KLE7F6DEYS5NTFJ06U5SM5TOWZHSHF"; //Chuỗi bí mật
+        $bill = Bill::findOrFail($billId);
+        
+        if ($bill->status !== 'pending') {
+            return redirect()->route('client.index')->with('error', 'Đơn hàng này không thể thanh toán.');
+        }
 
-        $vnp_TxnRef = rand(1, 1000); //Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã này sang VNPAY
-        $vnp_OrderInfo = 'Thanh toán đơn hàng test';
+        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        $vnp_Returnurl = route('payment.vnpay.return');
+        $vnp_TmnCode = "C5QKNTNE"; // Mã website tại VNPAY 
+        $vnp_HashSecret = "T3KLE7F6DEYS5NTFJ06U5SM5TOWZHSHF"; // Chuỗi bí mật
+
+        $vnp_TxnRef = $billId; // Sử dụng bill ID làm mã đơn hàng
+        $vnp_OrderInfo = 'Thanh toán đặt phòng - ' . $bill->guest_name;
         $vnp_OrderType = 'billpayment';
-        $vnp_Amount = $data['total'] * 100;
+        $vnp_Amount = $bill->total * 100; // VNPay yêu cầu số tiền nhân với 100
         $vnp_Locale = 'vn';
-        // $vnp_BankCode = 'NCB';
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
 
         $inputData = array(
@@ -60,21 +58,13 @@ class PaymentController extends Controller
             "vnp_OrderType" => $vnp_OrderType,
             "vnp_ReturnUrl" => $vnp_Returnurl,
             "vnp_TxnRef" => $vnp_TxnRef,
-
         );
 
-        if (isset($vnp_BankCode) && $vnp_BankCode != "") {
-            $inputData['vnp_BankCode'] = $vnp_BankCode;
-        }
-        if (isset($vnp_Bill_State) && $vnp_Bill_State != "") {
-            $inputData['vnp_Bill_State'] = $vnp_Bill_State;
-        }
-
-        //var_dump($inputData);
         ksort($inputData);
         $query = "";
         $i = 0;
         $hashdata = "";
+        
         foreach ($inputData as $key => $value) {
             if ($i == 1) {
                 $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
@@ -86,20 +76,87 @@ class PaymentController extends Controller
         }
 
         $vnp_Url = $vnp_Url . "?" . $query;
+        
         if (isset($vnp_HashSecret)) {
-            $vnpSecureHash =   hash_hmac('sha512', $hashdata, $vnp_HashSecret); //  
+            $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
             $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
         }
-        $returnData = array(
-            'code' => '00',
-            'message' => 'success',
-            'data' => $vnp_Url
-        );
-        if (isset($_POST['redirect'])) {
-            // header('Location: ' . $vnp_Url);
-            return redirect()->to($vnp_Url);
-        } else {
-            echo json_encode($returnData);
+
+        // Lưu bill_id vào session để xử lý khi VNPay trả về
+        session(['vnpay_bill_id' => $billId]);
+
+        return redirect()->to($vnp_Url);
+    }
+
+    public function vnpayReturn(Request $request)
+    {
+        $billId = session('vnpay_bill_id');
+        
+        if (!$billId) {
+            return redirect()->route('client.index')->with('error', 'Không tìm thấy thông tin đơn hàng.');
         }
+
+        $bill = Bill::findOrFail($billId);
+        
+        // Kiểm tra response từ VNPay
+        $vnp_ResponseCode = $request->get('vnp_ResponseCode');
+        $vnp_TxnRef = $request->get('vnp_TxnRef');
+        $vnp_Amount = $request->get('vnp_Amount');
+        $vnp_SecureHash = $request->get('vnp_SecureHash');
+
+        // Xác thực hash
+        $vnp_HashSecret = "T3KLE7F6DEYS5NTFJ06U5SM5TOWZHSHF";
+        $inputData = array();
+        foreach ($request->all() as $key => $value) {
+            if (substr($key, 0, 4) == "vnp_") {
+                $inputData[$key] = $value;
+            }
+        }
+        unset($inputData["vnp_SecureHash"]);
+        ksort($inputData);
+        $hashData = "";
+        $i = 0;
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashData = $hashData . '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashData = urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+        }
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+        if ($secureHash == $vnp_SecureHash) {
+            if ($vnp_ResponseCode == "00") {
+                // Thanh toán thành công
+                $bill->update([
+                    'status' => 'paid',
+                    'payment_date' => now(),
+                ]);
+
+                session()->forget(['vnpay_bill_id', 'booking', 'current_bill_id']);
+                
+                return redirect()->route('dathang.success')->with('success', 'Thanh toán thành công! Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.');
+            } else {
+                // Thanh toán thất bại
+                $bill->update(['status' => 'failed']);
+                session()->forget(['vnpay_bill_id', 'booking', 'current_bill_id']);
+                
+                return redirect()->route('dathang.cancel')->with('error', 'Thanh toán thất bại. Mã lỗi: ' . $vnp_ResponseCode);
+            }
+        } else {
+            // Hash không khớp
+            return redirect()->route('client.index')->with('error', 'Chữ ký không hợp lệ.');
+        }
+    }
+
+    public function showPaymentHistory()
+    {
+        $bills = Bill::with(['details.room'])
+            ->where('guest_email', session('guest_email'))
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('client.payment.history', compact('bills'));
     }
 }

@@ -67,7 +67,7 @@ text-shadow:
 
 </style>
 </head>
-
+{{-- {{ dd(Auth::user()) }} --}}
 <body id="bd">
     {{-- {{ dd(session("active")) }} --}}
     <!-- Page Preloder -->
@@ -194,9 +194,19 @@ text-shadow:
                     </div>
                     
                 </div>
+@if(empty(Auth::user())||Auth::user() == [])
+<div class="user-dropdown" style="padding:5px;margin:auto; width: 15%; text-align: center; position: relative;">
+<a href="{{ route("login") }}"><img width="25%" src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" style="cursor: pointer;"></a>
+</div>
+@else
                 <div class="user-dropdown" style="padding:5px;margin:auto; width: 15%; text-align: center; position: relative;">
+                   {{-- điều kiện nếu người dùng không có avatar --}}
+                    @if(empty(Auth::user()->avatar) || Auth::user()->avatar==="" )
     <img width="25%" src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" style="cursor: pointer;">
-    
+   {{-- Điều kiện nếu có avatar --}}
+    @else
+        <img src="{{ asset(url("")) }}/upload/{{ Auth::user()->avatar }}" alt="">
+    @endif
     <div class="user-menu" id="userMenu" style="
         display: none;
         position: absolute;
@@ -216,7 +226,7 @@ text-shadow:
         </ul>
     </div>
 </div>
-
+@endif
             </div>
         </div>
         <div class="menu-item">

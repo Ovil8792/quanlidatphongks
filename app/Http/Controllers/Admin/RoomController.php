@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Category;
 use App\Models\khoanh;
 use App\Models\Room;
+
 use App\Http\Controllers\Controller;
-use App\Models\Hotel;
 use Illuminate\Http\Request;
 use App\Models\Bill; // Added this import for Bill model
 
@@ -19,7 +19,7 @@ class RoomController extends Controller
         $searchId = $request->query('search_id');
         $searchName = $request->query('search_name');
 
-        $query = Room::with(['category:id,name', 'hotel:id,name']);
+        $query = Room::with(['category:id,name']);
 
         if (!empty($searchId)) {
             $query->where('id', (int) $searchId);
@@ -32,7 +32,7 @@ class RoomController extends Controller
 
         foreach ($roomlist as $k => $v) {
             $roomlist[$k]["category_name"] = $v->category?->name ?? '';
-            $roomlist[$k]["hotel_name"] = $v->hotel?->name ?? '';
+            $roomlist[$k]["isInUse"] = 0;
         }
         return view("admin.Room.index", compact("roomlist", "searchId", "searchName"));
     }
@@ -43,8 +43,7 @@ class RoomController extends Controller
     public function create()
     {
         $catelist = Category::get();
-        $hotel= Hotel::get();
-        return view("admin.Room.add",compact("catelist","hotel"));
+        return view("admin.Room.add",compact("catelist"));
     }
     public function totest(){
         return view("test");
@@ -64,10 +63,29 @@ class RoomController extends Controller
     public function store(Request $request)
     {
         $name = $request->input("name");
+        $code = $request->input("code");
+        $floor = $request->input("floor");
+        $require = $request->input("requirements");
+        $status = $request->input("status","available");
         $cate = $request->input("category");
-        $amenities = $request->input("amenities");
-        $hotel = $request->input("hotel");
-        $bprice = $request->input("baseprice");
+        
+        // Xử lý amenities từ checkbox và text tùy chỉnh
+        $amenitiesCheckbox = $request->input("amenities_checkbox", []);
+        $amenitiesCustom = $request->input("amenities_custom", "");
+        
+        $amenityText = "";
+        if (!empty($amenitiesCheckbox)) {
+            $amenityText = implode(", ", $amenitiesCheckbox);
+        }
+        if (!empty($amenitiesCustom)) {
+            if (!empty($amenityText)) {
+                $amenityText .= ", " . $amenitiesCustom;
+            } else {
+                $amenityText = $amenitiesCustom;
+            }
+        }
+        
+        $bprice = $request->input("price");
         $filename = "" ;
         $desc = $request->input("desc","");
         $room_area = $request->input("room_area");
@@ -81,23 +99,29 @@ class RoomController extends Controller
             $img->storeAs("/upload",$filename);
         }
         
-        Room::create([
-            "name" => $name,
-            "category_id" => $cate,
-            "pimage" => $filename,
-            "description" => $desc,
-            "amenities" => $amenities,
-            "hotel_id" => $hotel,
-            "base_price" => $bprice,
-            "room_area" => $room_area,
+           $room =  Room::create([
+        "name" => $name,
+        "code" => $code,
+        "floor" => $floor,
+        "requirements" => $require,
+        "status" => $status,
+        "category_id" => $cate,
+        "pimage" => $filename,
+        "description" => $desc,
+        "base_price" => $bprice,
+        "room_area" => $room_area,
             "bathroom_area" => $bathroom_area,
             "max_guests" => $max_guests,
-            "bed_count" => $bed_count
-        ]);
+            "bed_count" => $bed_count,
+            "amenities" => $amenityText,
+    ]);
+            // dd($idnewroom);
+            khoanh::create(["imgname" => $filename, "roomid" => $room->id]);
+            return redirect(route("admin.roomlist"));
+        // } catch (\Throwable $th) {
+        //     throw $th;
+        // }
         
-        $idnewroom = Room::where("name",$name)->get();
-        khoanh::create(["imgname"=>$filename,"roomid"=>$idnewroom[0]->id]);
-        return redirect(route("admin.roomlist"));
     }
 
     /**
@@ -105,24 +129,28 @@ class RoomController extends Controller
      */
     public function show($id)
     {
-        $roominf = Room::with(['category:id,name', 'hotel:id,name'])->findOrFail($id);
-        $roominf["hotel_name"] = $roominf->hotel?->name ?? '';
-        $roominf["category_name"] = $roominf->category?->name ?? '';
-        
-        // Lấy thông tin đặt phòng hiện tại từ detailedbills nếu phòng đang được sử dụng
+        $roominf = Room::findOrFail($id);
+        $imglist = khoanh::where("roomid",$roominf->id)->get();
+
+        // helper fields for view
+        $roominf->category_name = optional($roominf->category)->name;
+        $roominf->isInUse = 0;
         $activeBooking = null;
-        if ($roominf->isInUse == 1) {
-            $activeBooking = \App\Models\DetailedBill::where('id_room', $id)
-                ->with(['bill.user', 'bill'])
-                ->whereHas('bill', function($query) {
-                    $query->where('status', '!=', 'cancelled')
-                          ->where('checkin', '<=', now())
-                          ->where('checkout', '>=', now());
+
+        try {
+            $activeBooking = \App\Models\DetailedBill::with(['bill.user'])
+                ->where('id_room', $id)
+                ->whereHas('bill', function($q){
+                    $q->whereIn('status', ['pending','paid'])
+                      ->whereDate('checkin', '<=', now())
+                      ->whereDate('checkout', '>=', now());
                 })
                 ->first();
-        }
-        
-        $imglist = khoanh::where("roomid",$roominf->id)->get();
+            if ($activeBooking) {
+                $roominf->isInUse = 1;
+            }
+        } catch (\Throwable $e) {}
+
         return view("admin.Room.info",compact("roominf","imglist","id","activeBooking"));
     }
 
@@ -132,9 +160,11 @@ class RoomController extends Controller
     public function edit( $id)
     {
         $roomdata = Room::findOrFail($id);
-        $hotels = Hotel::get();
         $cat = Category::get();
-        return view("admin.Room.edit",compact("roomdata","cat","hotels"));
+        // Không còn sử dụng relationship amenities nữa
+        // $ame = Amenity::all();
+        // $roomAmenityIds = $roomdata->amenities->pluck('id')->toArray();
+        return view("admin.Room.edit",compact("roomdata","cat"));
     }
     public function toStorePic($id){
         return view("admin.Room.store",compact("id"));
@@ -163,43 +193,82 @@ class RoomController extends Controller
      
     public function update(Request $request,$id)
     {
-        $filename = "";
+        $room = Room::findOrFail($id);
         $name = $request->input("name");
-        $cat = $request->input("category");
-        $desc = $request->input("desc");
-        $ame = $request->input("amenities");
-        $hotel = $request->input("hotel");
+        $code = $request->input("code");
+        $floor = $request->input("floor");
+        $require = $request->input("requirements");
+        $status = $request->input("status","available");
+        $cate = $request->input("category");
+        
+        // Xử lý amenities từ checkbox và text tùy chỉnh
+        $amenitiesCheckbox = $request->input("amenities_checkbox", []);
+        $amenitiesCustom = $request->input("amenities_custom", "");
+        
+        $amenityText = "";
+        if (!empty($amenitiesCheckbox)) {
+            $amenityText = implode(", ", $amenitiesCheckbox);
+        }
+        if (!empty($amenitiesCustom)) {
+            if (!empty($amenityText)) {
+                $amenityText .= ", " . $amenitiesCustom;
+            } else {
+                $amenityText = $amenitiesCustom;
+            }
+        }
+        
         $bprice = $request->input("price");
+        $filename = "" ;
+        $desc = $request->input("desc","");
         $room_area = $request->input("room_area");
         $bathroom_area = $request->input("bathroom_area");
         $max_guests = $request->input("max_guests");
         $bed_count = $request->input("bed_count");
-        $oimg = $request->input("old_img");
-        
-        $updateData = [
-            "name" => $name,
-            "category_id" => $cat,
-            "description" => $desc,
-            "amenities" => $ame,
-            "hotel_id" => $hotel,
-            "base_price" => $bprice,
-            "room_area" => $room_area,
-            "bathroom_area" => $bathroom_area,
-            "max_guests" => $max_guests,
-            "bed_count" => $bed_count
-        ];
         
         if($request->hasFile("pimage")){
+            $room->update([
+        "name" => $name,
+        "code" => $code,
+        "floor" => $floor,
+        "requirements" => $require,
+        "status" => $status,
+        "category_id" => $cate,
+        "pimage" => $filename,
+        "description" => $desc,
+        "base_price" => $bprice,
+        "room_area" => $room_area,
+            "bathroom_area" => $bathroom_area,
+            "max_guests" => $max_guests,
+            "bed_count" => $bed_count,
+            "amenities" => $amenityText
+    ]);
+            // dd($idnewroom);
+           
+                
             $img = $request->file("pimage");
-            $filename = time()."_".$img->getClientOriginalName();
+            $filename=time().'_'.$img->getClientOriginalName();
             $img->storeAs("/upload",$filename);
-            $updateData["pimage"] = $filename;
-        } else {
-            $updateData["pimage"] = $oimg;
+             khoanh::where("roomid",$id)->update(["imgname" => $filename, "roomid" => $room->id]);
+        }else{
+            $room->update([
+        "name" => $name,
+        "code" => $code,
+        "floor" => $floor,
+        "requirements" => $require,
+        "status" => $status,
+        "category_id" => $cate,
+        "pimage" => $room->pimage,
+        "description" => $desc,
+        "base_price" => $bprice,
+        "room_area" => $room_area,
+            "bathroom_area" => $bathroom_area,
+            "max_guests" => $max_guests,
+            "bed_count" => $bed_count,
+            "amenities" => $amenityText
+    ]);
+            // dd($idnewroom);
         }
-        
-        Room::where("id",$id)->update($updateData);
-        return redirect(route("admin.roomlist"));
+        return redirect(route('admin.roomlist'));
     }
 
     /**

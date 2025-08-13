@@ -11,7 +11,7 @@
               <div class="bg-primary bg-opacity-10 rounded-circle p-3"><i class="bi bi-door-open text-primary fs-4"></i></div>
               <div>
                 <h5 class="mb-1">Phòng #{{ $roominf->id }} — {{ $roominf->name }}</h5>
-                <div class="text-muted">Danh mục: <strong>{{ $roominf->category_name }}</strong> • Khách sạn: <strong>{{ $roominf->hotel_name }}</strong></div>
+                <div class="text-muted">Danh mục: <strong>{{ $roominf->category_name }}</strong></div>
               </div>
             </div>
             <div>

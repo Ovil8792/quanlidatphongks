@@ -22,7 +22,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-       $room= Room::where("isInUse",0)->get();
+       $room= Room::get();
         $cat = Category::get();
         
         return view("client.index",compact("cat","room"));

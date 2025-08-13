@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Models\User;
+use Socialite;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,8 @@ class AuthController extends Controller
     }
     public function postRegister(Request $request)
     {
+        //thêm logic kiểm tra xem email đã có trên hệ thống chưa, nếu có thì thông báo
+        
         User::create([
             'name' => $request->get('name'),
             'email' => $request->get('email'),
@@ -33,7 +36,6 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            // session::put("test",$request->session());
             return redirect()->route('client.index');
         }
         return back()->withErrors([
@@ -47,6 +49,9 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+
+
+
     /**
      * Display a listing of the resource.
      */
