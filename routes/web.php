@@ -4,7 +4,7 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BillController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\HotelController;
+
 use App\Http\Controllers\Admin\ImageStorageController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\RoomController as UserRoom;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\RoomAmenitiesController;
 use Illuminate\Support\Facades\Cookie;
 use App\Http\Controllers\DathangController;
 // use Faker\Provider\ar_EG\Payment;
@@ -55,25 +56,20 @@ Route::prefix("/")->group(function () {
 });
 Route::get("/sapi", [SearchController::class, "autocompletingSearch"])->name("api.search");
 Route::get("/search", [SearchController::class, "search"])->name("search.pending");
-Route::get("/sres", [SearchController::class, "search"])->name("search.result");
+Route::get("/sres", [SearchController::class, "Asearch"])->name("search.result");
 Route::get("/api/booking-cookies",[CookieController::class,"cookieRequest"]);
 Route::post('/update-booking-cookie', function (Illuminate\Http\Request $request) {
     $loc = $request->input('selected_location');
     return response('OK')->cookie('bookingdata', json_encode(['location' => $loc]), 60 * 24);
 });
 Route::post("/api/filter-rooms",[SearchController::class,"filter"]);
+Route::get("/api/available-rooms", [SearchController::class, "availableRooms"])->name("api.available-rooms");
 
 Route::prefix("/administrator")->group(function () {
     Route::get("/", [AdminController::class, "index"])->name("admin.index");
+    Route::get("/amenities", [RoomAmenitiesController::class, "index"])->name("admin.amenities");
     Route::prefix("contact")->group(function () {
         Route::get("/", [ContactController::class, "index"])->name("admin.contact");
-    });
-    Route::prefix("/hotel")->group(function () {
-        Route::get("/", [HotelController::class, "index"])->name("admin.hotel");
-        Route::get("/create", [HotelController::class, "create"])->name("admin.createhotel");
-        Route::get("/edit/{id}", [HotelController::class, "edit"])->name("admin.edithotel");
-        Route::post("/store", [HotelController::class, "store"])->name("admin.storehotel");
-        Route::put("/update/{id}", [HotelController::class, "update"])->name("admin.updatehotel");
     });
     Route::prefix("/category")->group(function () {
         Route::get("/", [CategoryController::class, "index"])->name("admin.category");
@@ -129,10 +125,18 @@ Route::prefix("/administrator")->group(function () {
     // Route::get("/tup",[RoomController::class,"totest"])->name("totest");
     // Route::post("/testupload",[RoomController::class,"uptest"])->name("testing");
 });
+// Routes đặt phòng
 Route::get('/datphong/{id}', [DathangController::class, 'showForm'])->name('dathang.form');
 Route::post('/datphong/store', [DathangController::class, 'store'])->name('dathang.store');
-Route::get('/datphong/confirm', [DathangController::class, 'xacNhan'])->name('dathang.confirm');
-Route::get("/thanhcong", [DathangController::class, "testr"])->name("testr");
+Route::post('/datphong/process-payment', [DathangController::class, 'processPayment'])->name('dathang.process-payment');
+Route::get('/datphong/success', [DathangController::class, 'paymentSuccess'])->name('dathang.success');
+Route::get('/datphong/cancel', [DathangController::class, 'paymentCancel'])->name('dathang.cancel');
+
+// Routes thanh toán VNPay
+Route::get('/payment/{bill_id}', [PaymentController::class, 'showPayment'])->name('payment.show');
+Route::get('/payment/vnpay/{bill_id}', [PaymentController::class, 'processVNPay'])->name('payment.vnpay');
+Route::get('/payment/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');
+Route::get('/payment/history', [PaymentController::class, 'showPaymentHistory'])->name('payment.history');
 
 
 

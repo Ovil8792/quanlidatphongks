@@ -3,19 +3,18 @@
 @section("page-title", "Quản lý phòng")
 
 @section("main")
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="mb-0">Danh sách phòng</h2>
-                    <p class="text-muted mb-0">Quản lý tất cả phòng trong hệ thống</p>
-                </div>
-                <div>
-                    <a href="{{ route('admin.addroom') }}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle me-2"></i>Thêm phòng mới
-                    </a>
+{{-- this is category page --}}
+<a href="{{ route("admin.addroom") }}" class="btn btn-primary">Thêm phòng</a>
+          <div class="tables-wrapper">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="card-style mb-30">
+                  <h6 class="mb-10">Danh sách phòng</h6>
+                   <p style="display: none;" id="check">rooms</p>
+                  <div class="table-wrapper table-responsive">
+                    
+                    <!-- end table -->
+                  </div>
                 </div>
             </div>
         </div>

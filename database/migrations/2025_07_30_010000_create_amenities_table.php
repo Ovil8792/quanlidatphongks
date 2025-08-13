@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('rooms', function (Blueprint $table) {
-            $table->foreignId('hotel_id')->nullable()->change();
+        Schema::create('amenities', function (Blueprint $table) {
+            $table->id();
+        $table->string('name'); // Ví dụ: WiFi, Tivi, Máy lạnh
+        $table->timestamps();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('rooms', function (Blueprint $table) {
-            $table->foreignId('hotel_id')->nullable(false)->change();
-        });
+        Schema::dropIfExists('amenities');
     }
 };

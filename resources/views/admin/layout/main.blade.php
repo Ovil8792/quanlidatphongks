@@ -313,12 +313,7 @@
                 </a>
             </div>
             
-            <div class="nav-item">
-                <a href="{{ route('admin.hotel') }}" class="nav-link {{ request()->routeIs('admin.hotel*') ? 'active' : '' }}">
-                    <i class="bi bi-building"></i>
-                    <span>Khách sạn</span>
-                </a>
-            </div>
+           
         </div>
     </nav>
 

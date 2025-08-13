@@ -4,7 +4,7 @@
 
 <div class="container mt-5">
     <div class="card shadow-sm">
-        <div class="card-header bg-warning text-dark">
+        <div style="background-color:#dfa974" class="card-header text-dark">
             <h2 class="mb-0">Chỉnh sửa thông tin cá nhân</h2>
         </div>
         <div class="card-body">
@@ -52,6 +52,10 @@
     @error('phone')
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
+    
+                <label class="form-label" for="email">Email</label>
+                <input class="form-control" value="{{ old("email")??$user->email }}" type="email" name="email" id="email">
+    @endif
                 </div>
                 <div class="buttons d-flex justify-content-center">
                      <button type="submit" class="btn btn-primary px-2">Lưu</button>

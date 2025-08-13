@@ -77,7 +77,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="video-text">
-                        <h2>Discover Our Hotel & Services.</h2>
+                        <h2>Discover Our Hotel Services.</h2>
                         <p>It S Hurricane Season But We Are Visiting Hilton Head Island</p>
                         <a href="https://www.youtube.com/watch?v=EzKkl64rRbM" class="play-btn video-popup"><img
                                 src="img/play.png" alt=""></a>

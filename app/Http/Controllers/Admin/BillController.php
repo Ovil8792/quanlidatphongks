@@ -66,7 +66,7 @@ class BillController extends Controller
      */
     public function show(Bill $bill)
     {
-        $bill->load(['user', 'details.room.category']); // ⚠️ Quan trọng: load nested relationships
+        $bill->load(['user', 'details.room.category']);
         return view('admin.bill.detailedbill', compact('bill'));
     }
 

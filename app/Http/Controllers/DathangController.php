@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Bill;
 use App\Models\Room;
+use App\Models\DetailedBill;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DathangController extends Controller
 {
@@ -13,7 +16,6 @@ class DathangController extends Controller
         $room = Room::findOrFail($id);
         return view('client.room.datphong', compact('room'));
     }
-
 
     public function store(Request $request)
     {
@@ -27,42 +29,121 @@ class DathangController extends Controller
             'total' => 'required|numeric',
         ]);
 
-        // Lưu thông tin vào session
-        session([
-            'booking' => [
+        // Tính toán số đêm
+        $checkin = Carbon::parse($request->checkin);
+        $checkout = Carbon::parse($request->checkout);
+        $nights = $checkout->diffInDays($checkin);
+        
+        // Lấy thông tin phòng
+        $room = Room::findOrFail($request->room_id);
+        
+        // Tính toán giá thực sự
+        $pricePerNight = $room->base_price;
+        $totalAmount = $pricePerNight * $nights;
+
+        try {
+            DB::beginTransaction();
+
+            // Tạo bill mới
+            $bill = Bill::create([
                 'room_id' => $request->room_id,
-                'name' => $request->name,
-                'phone' => $request->phone,
-                'email' => $request->email,
+                'total' => $totalAmount,
+                'status' => 'pending',
                 'checkin' => $request->checkin,
                 'checkout' => $request->checkout,
-                'total' => $request->total,
-            ]
-        ]);
+                'guest_name' => $request->name,
+                'guest_email' => $request->email,
+                'guest_phone' => $request->phone,
+                'booking_date' => now(),
+            ]);
 
-        return redirect()->route('testr');
+            // Tạo detailed bill
+            DetailedBill::create([
+                'id_bill' => $bill->id,
+                'id_room' => $request->room_id,
+                'room_rate' => $pricePerNight,
+                'quantity' => $nights,
+            ]);
+
+            DB::commit();
+
+            // Lưu thông tin vào session để sử dụng cho VNPay
+            session([
+                'current_bill_id' => $bill->id,
+                'booking_success' => [
+                    'bill_id' => $bill->id,
+                    'room_name' => $room->name,
+                    'guest_name' => $request->name,
+                    'checkin' => $request->checkin,
+                    'checkout' => $request->checkout,
+                    'nights' => $nights,
+                    'total' => $totalAmount,
+                    'price_per_night' => $pricePerNight,
+                ]
+            ]);
+
+            // Trả về view thành công với thông tin đặt phòng
+            return view('client.room.booking_success', [
+                'bill_id' => $bill->id,
+                'room_name' => $room->name,
+                'guest_name' => $request->name,
+                'checkin' => $request->checkin,
+                'checkout' => $request->checkout,
+                'nights' => $nights,
+                'total' => $totalAmount,
+                'price_per_night' => $pricePerNight,
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return back()->with('error', 'Có lỗi xảy ra khi đặt phòng: ' . $e->getMessage());
+        }
     }
-    public function testr()
+
+    public function processPayment(Request $request)
     {
-        $booking = session('booking');
-
-        $room = Room::findOrFail($booking['room_id']);
-        // dd(1);
-        return view('client.room.confirm', compact("booking", "room")); // Trả về view xác nhận
-    }
-
-
-
-    public function xacNhan1()
-    {
-        $booking = session('booking');
-
-        if (!$booking) {
+        $billId = session('current_bill_id');
+        
+        if (!$billId) {
             return redirect()->route('client.index')->with('error', 'Không có dữ liệu đặt phòng.');
         }
 
-        $room = Room::findOrFail($booking['room_id']);
+        // Chuyển hướng đến trang thanh toán VNPay
+        return redirect()->route('payment.vnpay', ['bill_id' => $billId]);
+    }
 
-        return view('client.room.confirm', compact('booking', 'room'));
+    public function paymentSuccess(Request $request)
+    {
+        $billId = session('current_bill_id');
+        
+        if (!$billId) {
+            return redirect()->route('client.index')->with('error', 'Không tìm thấy thông tin đặt phòng.');
+        }
+
+        $bill = Bill::findOrFail($billId);
+        
+        // Cập nhật trạng thái thanh toán
+        $bill->update([
+            'status' => 'paid',
+            'payment_date' => now(),
+        ]);
+
+        // Xóa session
+        session()->forget(['current_bill_id', 'booking_success']);
+
+        return redirect()->route('client.index')->with('success', 'Đặt phòng thành công! Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.');
+    }
+
+    public function paymentCancel()
+    {
+        $billId = session('current_bill_id');
+        
+        if ($billId) {
+            $bill = Bill::findOrFail($billId);
+            $bill->update(['status' => 'cancelled']);
+            session()->forget(['current_bill_id', 'booking_success']);
+        }
+
+        return redirect()->route('client.index')->with('error', 'Thanh toán đã bị hủy.');
     }
 }
