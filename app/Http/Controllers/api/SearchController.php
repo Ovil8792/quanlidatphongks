@@ -134,6 +134,19 @@ class SearchController extends Controller
         if ($checkout <= $checkin) {
             return redirect()->route('client.rooms')->with('error', 'Ngày trả phòng phải sau ngày nhận phòng!');
         }
+        
+        // Kiểm tra ngày không được trong quá khứ
+        $now = now();
+        $checkinDate = Carbon::parse($checkin);
+        $checkoutDate = Carbon::parse($checkout);
+        
+        if ($checkinDate < $now) {
+            return redirect()->route('client.rooms')->with('error', 'Ngày nhận phòng không thể trong quá khứ!');
+        }
+        
+        if ($checkoutDate < $now) {
+            return redirect()->route('client.rooms')->with('error', 'Ngày trả phòng không thể trong quá khứ!');
+        }
 
         $people = $request->input('guest', "nope");
         $roomCount = $request->input('room');
@@ -268,7 +281,28 @@ class SearchController extends Controller
         $checkin = $request->input('date_in');
         $checkout = $request->input('date_out');
         $people = $request->input('guest', "zero");
+        $customGuest = $request->input('custom_guest', null);
         $categoryId = $request->input('category_id', null);
+
+        // Lưu dữ liệu vào session để sử dụng ở các trang khác
+        $bookingData = [
+            'date_in' => $checkin,
+            'date_out' => $checkout,
+            'guest' => $people,
+            'custom_guest' => $customGuest,
+            'category_id' => $categoryId
+        ];
+        
+        // Lọc bỏ các giá trị null/empty
+        $bookingData = array_filter($bookingData, function($value) {
+            return $value !== null && $value !== '';
+        });
+        
+        // Lưu vào session
+        session(['booking_data' => $bookingData]);
+        
+        
+
 
         $query = Room::query();
         if (!empty($categoryId)) {

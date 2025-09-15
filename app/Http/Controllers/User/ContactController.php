@@ -30,13 +30,19 @@ class ContactController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'message' => 'required|string|max:1000',
-        ]);
+        $errors = [];
+        $name = (string) $request->input('name');
+        $email = (string) $request->input('email');
+        $message = (string) $request->input('message');
+        if (trim($name) === '') $errors[] = 'Họ tên là bắt buộc';
+        elseif (mb_strlen($name) > 255) $errors[] = 'Họ tên không được quá 255 ký tự';
+        if (trim($email) === '') $errors[] = 'Email là bắt buộc';
+        elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email không hợp lệ';
+        if (trim($message) === '') $errors[] = 'Nội dung là bắt buộc';
+        elseif (mb_strlen($message) > 1000) $errors[] = 'Nội dung không được quá 1000 ký tự';
+        if (!empty($errors)) return back()->withInput()->with('form_errors', $errors);
 
-        Contact::create($request->all());
+        Contact::create($request->only(['name','email','message']));
 
         return redirect(route("client.contact"))->with('success', 'Tin nhắn của bạn đã được gửi đi!');
     }

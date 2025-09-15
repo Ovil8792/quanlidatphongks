@@ -1,0 +1,753 @@
+/* Room Detail Page Styles - Cải thiện giao diện đánh giá và form đặt phòng */
+
+/* ===== PHẦN ĐÁNH GIÁ ===== */
+.review-add {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+    width: 100%;
+}
+
+.review-add .row {
+    width: 100%;
+    margin: 0;
+}
+
+.review-add .col-12 {
+    width: 100%;
+    padding: 0;
+}
+
+.review-add h4 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #dfa974;
+    padding-bottom: 10px;
+}
+
+.review-add h4 i {
+    color: #3498db;
+}
+
+/* Rating Section */
+.rating-title {
+    margin: 0;
+    font-weight: 600;
+    color: #2c3e50;
+    padding: 0;
+    background: transparent;
+    border: none;
+}
+
+.gap-4 {
+    gap: 1.5rem !important;
+}
+
+/* Radio button alignment */
+.rating-section .form-check {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.rating-section .form-check-input {
+    margin: 0;
+    margin-right: 8px;
+}
+
+.rating-section .form-check-label {
+    margin: 0;
+    cursor: pointer;
+}
+
+.rating-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+/* Rating Type Selection */
+.rating-type {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 0;
+}
+
+.rating-type .form-check-inline {
+    margin-right: 0;
+    margin-bottom: 0;
+}
+
+.rating-type .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    border: 2px solid #3498db;
+    cursor: pointer;
+}
+
+.rating-type .form-check-input:checked {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+
+.rating-type .form-check-label {
+    font-weight: 500;
+    color: #2c3e50;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Star Rating */
+#star-rating-wrapper h6,
+#number-rating-wrapper h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+#star-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#star-rating i {
+    font-size: 28px;
+    color: #f39c12;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    filter: drop-shadow(0 2px 4px rgba(243, 156, 18, 0.3));
+}
+
+#star-rating i:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(243, 156, 18, 0.4));
+}
+
+#star-rating i.icon_star {
+    color: #f39c12;
+}
+
+#star-rating i.icon_star_alt {
+    color: #bdc3c7;
+}
+
+#star-rating i.icon_star_alt:hover,
+#star-rating i.icon_star_alt.active {
+    color: #dfa974;
+}
+
+/* Star rating display styles */
+.rating {
+    display: inline-block;
+}
+
+.rating i {
+    font-size: 18px;
+    margin-right: 2px;
+    color: #dfa974;
+}
+
+.rating i.icon_star {
+    color: #dfa974;
+}
+
+.rating i.icon_star_half {
+    color: #dfa974;
+    opacity: 0.8;
+}
+
+.rating i.icon_star_alt {
+    color: #ddd;
+}
+
+/* Rating Input Sections */
+.rating-input-section {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.rating-input-section h6 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+/* Number Rating */
+#number-rating-wrapper input[type="number"] {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.number-input-wrapper {
+    max-width: 200px;
+}
+
+#number-rating-wrapper input[type="number"]:focus {
+    border-color: #dfa974;
+    box-shadow: 0 0 0 3px rgba(223, 169, 116, 0.1);
+    outline: none;
+}
+
+/* Comment Textarea */
+.review-add textarea {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    transition: all 0.3s ease;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.review-add textarea:focus {
+    border-color: #dfa974;
+    box-shadow: 0 0 0 3px rgba(223, 169, 116, 0.1);
+    outline: none;
+}
+
+.review-add textarea::placeholder {
+    color: #95a5a6;
+    font-style: italic;
+}
+
+/* Submit Button */
+.review-add button[type="submit"] {
+    background: linear-gradient(135deg, #dfa974 0%, #c89a6b 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(223, 169, 116, 0.3);
+}
+
+.review-add button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(223, 169, 116, 0.4);
+}
+
+.review-add button[type="submit"] i {
+    margin-right: 8px;
+}
+
+/* ===== PHẦN FORM ĐẶT PHÒNG ===== */
+.room-booking {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.room-booking:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.room-booking .card-header {
+    background: linear-gradient(135deg, #dfa974 0%, #c89a6b 100%);
+    border: none;
+    padding: 20px;
+}
+
+.room-booking .card-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.room-booking .card-header i {
+    font-size: 1.1em;
+}
+
+.room-booking .card-body {
+    padding: 25px;
+}
+
+/* Form Labels */
+.room-booking .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: block;
+    text-align: left;
+    width: 100%;
+}
+
+/* Form Controls */
+.room-booking .form-control,
+.room-booking .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    width: 100%;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+/* Dropdown z-index fix */
+.room-booking .form-select {
+    z-index: 10;
+}
+
+.room-booking .form-select:focus {
+    z-index: 100;
+}
+
+/* Ensure dropdown options appear above other elements */
+.room-booking .form-select option {
+    z-index: 1000;
+}
+
+/* Fix dropdown positioning */
+.room-booking .form-select:focus {
+    z-index: 1000 !important;
+}
+
+/* Ensure form container has proper stacking context */
+.room-booking form {
+    position: relative;
+    z-index: 1;
+}
+
+/* Custom guest wrapper positioning */
+#customGuestWrapper {
+    position: relative;
+    z-index: 5;
+}
+
+/* Form Group Layout */
+.room-booking .mb-3 {
+    display: block;
+    width: 100%;
+    margin-bottom: 1.5rem !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure proper stacking order */
+.room-booking .mb-3:nth-child(1) { z-index: 10; }
+.room-booking .mb-3:nth-child(2) { z-index: 9; }
+.room-booking .mb-3:nth-child(3) { z-index: 8; }
+.room-booking .mb-3:nth-child(4) { z-index: 7; }
+
+.room-booking .mb-3 label {
+    display: block;
+    width: 100%;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.room-booking .mb-3 .form-control,
+.room-booking .mb-3 .form-select,
+.room-booking .mb-3 #customGuestWrapper {
+    display: block;
+    width: 100%;
+    margin-top: 0;
+}
+
+/* Đảm bảo tất cả form elements đều có width 100% */
+.room-booking form {
+    width: 100%;
+}
+
+.room-booking form .row {
+    width: 100%;
+    margin: 0;
+}
+
+.room-booking form .col-12 {
+    width: 100%;
+    padding: 0;
+}
+
+.room-booking .form-control:focus,
+.room-booking .form-select:focus {
+    border-color: #dfa974;
+    box-shadow: 0 0 0 3px rgba(223, 169, 116, 0.1);
+    outline: none;
+}
+
+.room-booking .form-control:hover,
+.room-booking .form-select:hover {
+    border-color: #dfa974;
+}
+
+/* Button Styles */
+.room-booking .btn-primary,
+.room-booking .btn {
+    background: linear-gradient(135deg, #dfa974 0%, #c89a6b 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(223, 169, 116, 0.3);
+    color: #fff;
+}
+
+.room-booking .btn-primary:hover,
+.room-booking .btn:hover {
+    background: linear-gradient(135deg, #c89a6b 0%, #b08a5a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(223, 169, 116, 0.4);
+}
+
+.room-booking .btn-primary:focus,
+.room-booking .btn:focus {
+    box-shadow: 0 0 0 3px rgba(223, 169, 116, 0.3);
+    outline: none;
+}
+
+/* Custom Guest Input */
+#customGuestWrapper {
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 10px;
+    position: relative;
+    z-index: 5;
+}
+
+/* Ensure dropdown options are visible */
+select.form-select {
+    position: relative;
+}
+
+select.form-select:focus {
+    z-index: 9999 !important;
+}
+
+/* Fix for Bootstrap dropdown positioning */
+.form-select:focus {
+    z-index: 9999 !important;
+    position: relative;
+}
+
+#customGuest {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+#customGuest:invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+#customGuest:valid {
+    border-color: #198754;
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.1);
+}
+
+#customGuestHelp {
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+#customGuest:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* Submit Button */
+.room-booking button[type="submit"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 15px 25px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    margin-top: 10px;
+}
+
+.room-booking button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.room-booking button[type="submit"] i {
+    margin-right: 8px;
+}
+
+/* Room Info Section */
+.room-info {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.room-info h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.room-info h6 i {
+    color: #667eea;
+}
+
+.room-info ul li {
+    padding: 8px 0;
+    color: #555;
+    font-size: 14px;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.room-info ul li:last-child {
+    border-bottom: none;
+}
+
+.room-info ul li i {
+    color: #667eea;
+    width: 20px;
+    text-align: center;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .review-add {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .rating-type {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    #star-rating i {
+        font-size: 24px;
+    }
+    
+    .room-booking .card-body {
+        padding: 20px;
+    }
+    
+    .room-booking button[type="submit"] {
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .review-add h4 {
+        font-size: 1.2rem;
+    }
+    
+    .review-add h5 {
+        font-size: 1rem;
+    }
+    
+    .room-booking .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .room-booking .form-control,
+    .room-booking .form-select {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    /* Đảm bảo form layout đúng trên mobile */
+    .room-booking .mb-3 {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .room-booking .form-label {
+        text-align: left;
+        margin-bottom: 6px;
+    }
+    
+    /* Rating section responsive */
+    .rating-title {
+        margin-bottom: 15px;
+    }
+    
+    .gap-4 {
+        gap: 1rem !important;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.review-add,
+.room-booking {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* ===== FOCUS STATES ===== */
+.review-add .form-control:focus,
+.review-add .form-select:focus,
+.room-booking .form-control:focus,
+.room-booking .form-select:focus {
+    transform: scale(1.02);
+}
+
+/* ===== HOVER EFFECTS ===== */
+.review-add:hover,
+.room-booking:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== DISABLED STATES ===== */
+.review-add .form-control:disabled,
+.room-booking .form-control:disabled,
+.room-booking .form-select:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* ===== VALIDATION STATES ===== */
+.review-add .form-control.is-valid,
+.room-booking .form-control.is-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+}
+
+.review-add .form-control.is-invalid,
+.room-booking .form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* ===== LOADING STATES ===== */
+.review-add button[type="submit"]:disabled,
+.room-booking button[type="submit"]:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ===== ACCESSIBILITY ===== */
+.review-add .form-check-input:focus,
+.room-booking .form-control:focus,
+.room-booking .form-select:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .review-add,
+    .room-booking {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .review-add button[type="submit"],
+    .room-booking button[type="submit"] {
+        display: none;
+    }
+}
+
+/* ===== BOOKING SESSION ENHANCEMENTS ===== */
+/* Booking Session Alert Styling */
+.room-booking .alert-info {
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.room-booking .alert-info i {
+    color: #17a2b8;
+}
+
+.room-booking .alert-info strong {
+    color: #0c5460;
+}
+
+/* Smart Suggestion Styling */
+.room-booking .text-muted {
+    font-size: 13px;
+    line-height: 1.4;
+    margin-top: 6px;
+    display: block;
+}
+
+.room-booking .text-muted i {
+    color: #dfa974;
+}
+
+.room-booking .text-muted strong {
+    color: #dfa974;
+    font-weight: 600;
+}
+
+/* Form Field Enhancement */
+.room-booking .form-select:focus + .text-muted {
+    color: #dfa974;
+}
+
+.room-booking .form-select:focus + .text-muted strong {
+    color: #c89a6b;
+}
+
+/* Session Data Highlight */
+.room-booking .form-control[value]:not([value=""]),
+.room-booking .form-select option:checked {
+    background-color: rgba(223, 169, 116, 0.1);
+    border-color: #dfa974;
+}
+
+/* Custom Guest Wrapper Enhancement */
+#customGuestWrapper {
+    border-left: 3px solid #dfa974;
+    padding-left: 12px;
+    margin-top: 8px;
+}
+
+#customGuestWrapper input {
+    border-color: #dfa974;
+}
+
+#customGuestWrapper input:focus {
+    border-color: #c89a6b;
+    box-shadow: 0 0 0 3px rgba(223, 169, 116, 0.1);
+}

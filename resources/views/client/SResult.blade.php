@@ -569,7 +569,7 @@ function applyFilters(page = 1) {
                                 ${roomDetails.length > 0 ? `<div class="room-details mt-2">${roomDetails.join('')}</div>` : ''}
                             </div>
                             <div style="width:28%;margin:auto 0;" class="d-flex flex-column align-items-center justify-content-center">
-                                <a class="detail-btn" id="infoBTN" href="/client/roomdetail/${room.id}">Chi tiết</a>
+                                <a class="detail-btn" id="infoBTN" href="/roomdetail/${room.id}">Chi tiết</a>
                             </div>
                         </div>
                     `;
@@ -649,38 +649,8 @@ function renderPagination(current, last) {
     }
 }
 
-// Validation form tìm kiếm
-document.addEventListener('DOMContentLoaded', function() {
-    const searchForm = document.getElementById('searchForm');
-    const dateIn = document.getElementById('date-in');
-    const dateOut = document.getElementById('date-out');
-    
-    if (searchForm) {
-        searchForm.addEventListener('submit', function(e) {
-            if (!dateIn.value || !dateOut.value) {
-                e.preventDefault();
-                alert('Vui lòng chọn ngày nhận phòng và ngày trả phòng!');
-                return false;
-            }
-            
-            if (dateOut.value <= dateIn.value) {
-                e.preventDefault();
-                alert('Ngày trả phòng phải sau ngày nhận phòng!');
-                return false;
-            }
-        });
-    }
-    
-    // Set min cho date-out khi date-in thay đổi
-    if (dateIn && dateOut) {
-        dateIn.addEventListener('change', function() {
-            dateOut.min = this.value;
-            if (dateOut.value && dateOut.value <= this.value) {
-                dateOut.value = '';
-            }
-        });
-    }
-});
+// Validation form tìm kiếm đã được xử lý bởi BookingCalendarManager
+// Không cần code validation cũ nữa
 </script>
 
 @endsection

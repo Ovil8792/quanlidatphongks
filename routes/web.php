@@ -54,9 +54,9 @@ Route::prefix("/")->group(function () {
     Route::post("/review/{id}",[UserRoom::class,"RV"])->name("client.p_review");
 
 });
-Route::get("/sapi", [SearchController::class, "autocompletingSearch"])->name("api.search");
+// Route::get("/sapi", [SearchController::class, "autocompletingSearch"])->name("api.search");
 Route::get("/search", [SearchController::class, "search"])->name("search.pending");
-Route::get("/sres", [SearchController::class, "Asearch"])->name("search.result");
+// Route::get("/sres", [SearchController::class, "Asearch"])->name("search.result");
 Route::get("/api/booking-cookies",[CookieController::class,"cookieRequest"]);
 Route::post('/update-booking-cookie', function (Illuminate\Http\Request $request) {
     $loc = $request->input('selected_location');
@@ -64,6 +64,14 @@ Route::post('/update-booking-cookie', function (Illuminate\Http\Request $request
 });
 Route::post("/api/filter-rooms",[SearchController::class,"filter"]);
 Route::get("/api/available-rooms", [SearchController::class, "availableRooms"])->name("api.available-rooms");
+Route::get("/api/used-room-codes/{floor}", [App\Http\Controllers\Admin\RoomController::class, "getUsedRoomCodes"])->name("api.used-room-codes");
+
+// Booking Session Management Routes
+Route::post('/api/booking-session/save', [App\Http\Controllers\BookingSessionController::class, 'saveBookingData'])->name('api.booking-session.save');
+Route::get('/api/booking-session/get', [App\Http\Controllers\BookingSessionController::class, 'getBookingData'])->name('api.booking-session.get');
+Route::post('/api/booking-session/update', [App\Http\Controllers\BookingSessionController::class, 'updateBookingData'])->name('api.booking-session.update');
+Route::post('/api/booking-session/clear', [App\Http\Controllers\BookingSessionController::class, 'clearBookingData'])->name('api.booking-session.clear');
+Route::post('/api/booking-session/save-temp', [App\Http\Controllers\BookingSessionController::class, 'saveTemp'])->name('api.booking-session.saveTemp');
 
 Route::prefix("/administrator")->group(function () {
     Route::get("/", [AdminController::class, "index"])->name("admin.index");
@@ -96,6 +104,7 @@ Route::prefix("/administrator")->group(function () {
         Route::put("/update/{id}", [RoomController::class, "update"])->name("admin.updroom");
         Route::post("/store", [RoomController::class, "store"])->name("admin.storeroom");
         Route::get("/review/{id}", [ReviewController::class, "listReview"])->name("admin.reviews");
+        Route::get("/reserList", [RoomController::class, "reservationList"])->name("admin.reserlist");
     });
     Route::prefix("/storage")->group(function () {
         Route::prefix("/image")->group(function () {
@@ -126,8 +135,10 @@ Route::prefix("/administrator")->group(function () {
     // Route::post("/testupload",[RoomController::class,"uptest"])->name("testing");
 });
 // Routes đặt phòng
+Route::get('/datphong/check-availability', [DathangController::class, 'checkAvailability'])->name('dathang.check');
 Route::get('/datphong/{id}', [DathangController::class, 'showForm'])->name('dathang.form');
 Route::post('/datphong/store', [DathangController::class, 'store'])->name('dathang.store');
+
 Route::post('/datphong/process-payment', [DathangController::class, 'processPayment'])->name('dathang.process-payment');
 Route::get('/datphong/success', [DathangController::class, 'paymentSuccess'])->name('dathang.success');
 Route::get('/datphong/cancel', [DathangController::class, 'paymentCancel'])->name('dathang.cancel');
@@ -140,6 +151,9 @@ Route::get('/payment/history', [PaymentController::class, 'showPaymentHistory'])
 
 
 
+    Route::get('/administrator/login', [AuthController::class, 'adminLogin'])->name('admin.login');
+    Route::post('/administrator/Plogin', [AuthController::class, 'postAdminLogin'])->name('admin.auth');
+    Route::get('/administrator/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
 
 
 
@@ -150,3 +164,10 @@ Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postLogin'])->name('postLogin');
 
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/test-auth', function() {
+    return [
+        'user' => Auth::user(),
+        'session' => session()->all(),
+        'cookie' => request()->cookie(),
+    ];
+});

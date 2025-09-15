@@ -4,7 +4,10 @@
 
 @section("main")
 {{-- this is category page --}}
-<a href="{{ route("admin.addroom") }}" class="btn btn-primary">Thêm phòng</a>
+<div class="btncombo">
+<a href="{{ route("admin.addroom") }}" class="btn btn-primary my-5">Thêm phòng</a>
+<a href="{{ route("admin.reserlist") }}" class="btn btn-primary">Các đơn đặt phòng</a>
+</div>
           <div class="tables-wrapper">
             <div class="row">
               <div class="col-lg-12">

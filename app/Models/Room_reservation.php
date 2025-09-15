@@ -15,6 +15,10 @@ class Room_reservation extends Model
         'total_price',
         'status',
         'special_requests',
+        'guest_name',
+        'guest_email',
+        'guest_phone',
+        'temp_uid',
     ];
 
     public function room()

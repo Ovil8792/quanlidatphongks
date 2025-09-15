@@ -7,7 +7,8 @@
     <meta name="keywords" content="Sona, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Sona | Template</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>River New</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css?family=Lora:400,700&display=swap" rel="stylesheet">
@@ -25,6 +26,8 @@
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/style.css" type="text/css">
     <link rel="stylesheet" href="{{ asset(url("")) }}/css/flatpickr.min.css" type="text/css">
+    <link rel="stylesheet" href="{{ asset(url("")) }}/css/booking-calendar.css" type="text/css">
+    <link rel="stylesheet" href="{{ asset(url("")) }}/css/room-detail.css" type="text/css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
@@ -64,11 +67,127 @@ text-shadow:
          0px  0px 4px rgba(0, 0, 0, 0.6);
     font-weight: bold;
 }
+/* Popup overlay */
+#login-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9998;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+}
 
+/* Popup form */
+#lfo {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    padding: 32px 24px 24px 24px;
+    min-width: 320px;
+    max-width: 95vw;
+}
+#lfo .close-login {
+    position: absolute;
+    top: 8px; right: 16px;
+    font-size: 22px;
+    color: #888;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+#login-title{
+    text-align: center;
+    margin: 20px 0px 40px 0px;
+    color: #333;
+}
 </style>
 </head>
 {{-- {{ dd(Auth::user()) }} --}}
 <body id="bd">
+
+<!-- login -->
+    <div id="login-overlay"></div>
+<div id="lfo" style="display:none;">
+    <button class="close-login" aria-label="Đóng">&times;</button>
+<div class="dangnhap">
+    <h2 id="login-title">Đăng nhập</h2>
+</div>
+<form style="margin-top: 20px;" action="{{ route('postLogin') }}" method="POST">
+    @csrf
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    @endif
+    <div class="input-group form-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-user"></i></span>
+        </div>
+        <input type="text" class="form-control" placeholder="Email" name="email">
+        @if ($errors->has('email'))
+            <span class="text-danger">{{ $errors->first('email') }}</span>
+        @endif
+    </div>
+    <div class="input-group form-group" style="margin-bottom: 20px;">
+        <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-key"></i></span>
+        </div>
+        <input type="password" class="form-control" placeholder="Mật khẩu" name="password">
+        @if ($errors->has('password'))
+            <span class="text-danger">{{ $errors->first('password') }}</span>
+        @endif
+    </div>
+    <div class="form-group d-flex justify-content-center">
+        <input type="submit" value="Đăng nhập" class="btn login_btn" style="background-color: #dfa974; color: white;">
+    </div>
+</form>
+<div class="d-flex justify-content-center links mt-auto">
+    Không có tài khoản?<a href="#" id="show-register-link">Đăng kí</a>
+</div>
+</div>
+
+<!-- register -->
+ <div id="register-overlay" style="display:none;position:fixed;z-index:9998;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);"></div>
+<div id="register-popup" style="display:none;position:fixed;z-index:9999;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.2);padding:32px 24px 24px 24px;min-width:320px;max-width:95vw;">
+    <button class="close-register" aria-label="Đóng" style="position:absolute;top:8px;right:16px;font-size:22px;color:#888;cursor:pointer;background:none;border:none;">&times;</button>
+    <div class="dangky">
+        <h2 id="register-title" style="text-align:center;margin:20px 0 40px 0;color:#333;">Đăng ký</h2>
+    </div>
+    <form action="{{ route('postRegister') }}" method="POST">
+        @csrf
+        <div class="input-group form-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Tên" name="name" required>
+        </div>
+        <div class="input-group form-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+            </div>
+            <input type="email" class="form-control" placeholder="Email" name="email" required>
+        </div>
+        <div class="input-group form-group" style="margin-bottom: 20px;">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-key"></i></span>
+            </div>
+            <input type="password" class="form-control" placeholder="Mật khẩu" name="password" required>
+        </div>
+        <div class="form-group d-flex justify-content-center">
+            <input type="submit" value="Đăng ký" class="btn login_btn" style="background-color: #dfa974; color: white;">
+        </div>
+    </form>
+    <div class="d-flex justify-content-center links mt-auto">
+        Đã có tài khoản? <a href="#" id="show-login-link" style="margin-left:5px;">Đăng nhập</a>
+    </div>
+</div>
+
     {{-- {{ dd(session("active")) }} --}}
     <!-- Page Preloder -->
     <div id="preloder">
@@ -196,7 +315,7 @@ text-shadow:
                 </div>
 @if(empty(Auth::user())||Auth::user() == [])
 <div class="user-dropdown" style="padding:5px;margin:auto; width: 15%; text-align: center; position: relative;">
-<a href="{{ route("login") }}"><img width="25%" src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" style="cursor: pointer;"></a>
+<a href="#" id="login-p"><img width="25%" src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" style="cursor: pointer;"></a>
 </div>
 @else
                 <div class="user-dropdown" style="padding:5px;margin:auto; width: 15%; text-align: center; position: relative;">
@@ -367,10 +486,102 @@ text-shadow:
 
     <!-- Js Plugins -->
     <script>
+//form login 
+// Toggle login popup
+function showLoginPopup(show = true) {
+    const overlay = document.getElementById('login-overlay');
+    const lfo = document.getElementById('lfo');
+    if (show) {
+        overlay.style.display = 'block';
+        lfo.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    } else {
+        overlay.style.display = 'none';
+        lfo.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+document.getElementById("login-p")?.addEventListener("click", function(e){
+    e.preventDefault();
+    showLoginPopup(true);
+});
+
+// Đóng popup khi bấm overlay hoặc nút đóng
+document.getElementById('login-overlay').addEventListener('click', function() {
+    showLoginPopup(false);
+});
+document.querySelector('#lfo .close-login').addEventListener('click', function() {
+    showLoginPopup(false);
+});
+
+// Đóng popup khi bấm ESC
+document.addEventListener('keydown', function(e){
+    if(e.key === "Escape") showLoginPopup(false);
+});
+
+//register
+function showRegisterPopup(show = true) {
+    const overlay = document.getElementById('register-overlay');
+    const popup = document.getElementById('register-popup');
+    if (show) {
+        overlay.style.display = 'block';
+        popup.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    } else {
+        overlay.style.display = 'none';
+        popup.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Khi bấm "Đăng kí" trong popup đăng nhập
+document.getElementById('show-register-link')?.addEventListener('click', function(e){
+    e.preventDefault();
+    showLoginPopup(false);
+    showRegisterPopup(true);
+});
+
+// Khi bấm "Đăng nhập" trong popup đăng ký
+document.getElementById('show-login-link')?.addEventListener('click', function(e){
+    e.preventDefault();
+    showRegisterPopup(false);
+    showLoginPopup(true);
+});
+
+// Đóng popup đăng ký khi bấm overlay hoặc nút đóng
+document.getElementById('register-overlay').addEventListener('click', function() {
+    showRegisterPopup(false);
+});
+document.querySelector('#register-popup .close-register').addEventListener('click', function() {
+    showRegisterPopup(false);
+});
+
+// Đóng popup đăng ký khi bấm ESC
+document.addEventListener('keydown', function(e){
+    if(e.key === "Escape") {
+        showRegisterPopup(false);
+        showLoginPopup(false);
+    }
+});
+
+// Tự động mở popup theo session flag (auth_modal)
+document.addEventListener('DOMContentLoaded', function(){
+    try {
+        const modalFlag = @json(session('auth_modal'));
+        if (modalFlag === 'login') {
+            showLoginPopup(true);
+        } else if (modalFlag === 'register') {
+            showRegisterPopup(true);
+        }
+    } catch (e) {}
+});
+
+
+//menu user
     document.addEventListener('DOMContentLoaded', function () {
         const avatar = document.getElementById('avatarToggle');
         const menu = document.getElementById('userMenu');
-
+        if(avatar && menu){
         avatar.addEventListener('click', function (e) {
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
             e.stopPropagation(); // tránh đóng khi click chính nó
@@ -380,6 +591,7 @@ text-shadow:
         document.addEventListener('click', function () {
             menu.style.display = 'none';
         });
+    }
     });
 </script>
 
@@ -412,6 +624,7 @@ text-shadow:
     <script src="{{ asset(url("")) }}/js/owl.carousel.min.js"></script>
     <script src="{{ asset(url("")) }}/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset(url("")) }}/js/form-validate.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
@@ -448,21 +661,9 @@ text-shadow:
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script src="{{ asset(url('')) }}/js/flatpickr.min.js"></script>
-<script src="{{ asset(url('')) }}/js/langvn.js"></script>
-<script>
-    // Set tiếng Việt cho Flatpickr
-    // flatpickr.localize(flatpickr.l10ns.vn);
-
-    flatpickr("#date-in", {
-        dateFormat: "d-m-Y"
-    });
-
-    flatpickr("#date-out", {
-        dateFormat: "d-m-Y"
-    });
-
-    // 
-</script>
+    <script src="{{ asset(url('')) }}/js/langvn.js"></script>
+    <script src="{{ asset(url('')) }}/js/booking-calendar.js"></script>
+    <script src="{{ asset(url('')) }}/js/booking-session.js"></script>
 <script>
 function copyVoucher(code) {
     navigator.clipboard.writeText(code).then(() => {
@@ -490,6 +691,7 @@ function copyVoucher(code) {
             hints: ['0.5', '1', '1.5', '2', '2.5', '3', '3.5', '4', '4.5', '5'], // Gợi ý cho từng mức
             click: function(score, evt) {
                 $('#rating-value').val(score); // Cập nhật giá trị vào input hidden
+                console.log('Rating selected:', score); // Debug log
             }
         });
         // Khi đổi lựa chọn kiểu đánh giá

@@ -56,9 +56,12 @@ class RoomController extends Controller
     public function show(int $id)
     {
         $room = Room::findOrFail($id);
-        //
         $imglist = khoanh::where("roomid", $id)->get();
-        return view("client.room.detail",compact("room","imglist"));
+        
+        // Lấy dữ liệu đặt phòng từ session
+        $bookingData = session('booking_data', []);
+        
+        return view("client.room.detail", compact("room", "imglist", "bookingData"));
     }
 
     /**

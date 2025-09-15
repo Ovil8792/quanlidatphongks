@@ -4,6 +4,7 @@
 @extends("admin.layout.main")
 
 @section("main")
+
             <!-- ========== table components start ========== -->
       <section class="table-components">
         <div class="container-fluid">
