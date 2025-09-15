@@ -29,17 +29,41 @@ class RoomReservationController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'room_id' => 'required|exists:rooms,id',
-            'user_id' => 'nullable|exists:users,id',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-            'reserved_quantity' => 'required|integer|min:1',
-            'total_price' => 'required|numeric|min:0',
-            'status' => 'required|string',
-            'special_requests' => 'nullable|string',
+        $errors = [];
+        $roomId = $request->input('room_id');
+        if (!$roomId) $errors[] = 'Phòng là bắt buộc';
+        elseif (!\App\Models\Room::where('id', $roomId)->exists()) $errors[] = 'Phòng không tồn tại';
+
+        $userId = $request->input('user_id');
+        if ($userId && !\App\Models\User::where('id', $userId)->exists()) $errors[] = 'Người dùng không tồn tại';
+
+        $start = $request->input('start_time');
+        $end = $request->input('end_time');
+        if (!$start) $errors[] = 'Ngày nhận là bắt buộc';
+        if (!$end) $errors[] = 'Ngày trả là bắt buộc';
+        if ($start && !preg_match('/^\d{4}-\d{2}-\d{2}/', $start)) $errors[] = 'Ngày nhận không hợp lệ';
+        if ($end && !preg_match('/^\d{4}-\d{2}-\d{2}/', $end)) $errors[] = 'Ngày trả không hợp lệ';
+        if ($start && $end) { if (!((strtotime($end) - strtotime($start)) > 0)) $errors[] = 'Ngày trả phải sau ngày nhận'; }
+
+        $qty = (int) ($request->input('reserved_quantity'));
+        if ($qty < 1) $errors[] = 'Số lượng phòng phải từ 1 trở lên';
+        $total = $request->input('total_price');
+        if (!is_numeric($total) || $total < 0) $errors[] = 'Tổng tiền không hợp lệ';
+        $status = (string) $request->input('status');
+        if (trim($status) === '') $errors[] = 'Trạng thái là bắt buộc';
+
+        if (!empty($errors)) return back()->withInput()->with('form_errors', $errors);
+
+        Room_reservation::create([
+            'room_id' => $roomId,
+            'user_id' => $userId,
+            'start_time' => $start,
+            'end_time' => $end,
+            'reserved_quantity' => $qty,
+            'total_price' => $total,
+            'status' => $status,
+            'special_requests' => $request->input('special_requests')
         ]);
-        Room_reservation::create($data);
         return back()->with('success','Tạo đặt phòng thành công');
     }
 
@@ -64,15 +88,38 @@ class RoomReservationController extends Controller
      */
     public function update(Request $request, Room_reservation $room_reservation)
     {
-        $data = $request->validate([
-            'start_time' => 'sometimes|date',
-            'end_time' => 'sometimes|date|after:start_time',
-            'reserved_quantity' => 'sometimes|integer|min:1',
-            'total_price' => 'sometimes|numeric|min:0',
-            'status' => 'sometimes|string',
-            'special_requests' => 'nullable|string',
-        ]);
-        $room_reservation->update($data);
+        $errors = [];
+        $payload = [];
+        if ($request->has('start_time')) {
+            $start = $request->input('start_time');
+            if ($start && !preg_match('/^\d{4}-\d{2}-\d{2}/', $start)) $errors[] = 'Ngày nhận không hợp lệ';
+            else $payload['start_time'] = $start;
+        }
+        if ($request->has('end_time')) {
+            $end = $request->input('end_time');
+            if ($end && !preg_match('/^\d{4}-\d{2}-\d{2}/', $end)) $errors[] = 'Ngày trả không hợp lệ';
+            else $payload['end_time'] = $end;
+        }
+        if (isset($payload['start_time']) && isset($payload['end_time'])) {
+            if (!((strtotime($payload['end_time']) - strtotime($payload['start_time'])) > 0)) $errors[] = 'Ngày trả phải sau ngày nhận';
+        }
+        if ($request->has('reserved_quantity')) {
+            $qty = (int) $request->input('reserved_quantity');
+            if ($qty < 1) $errors[] = 'Số lượng phòng phải từ 1 trở lên'; else $payload['reserved_quantity'] = $qty;
+        }
+        if ($request->has('total_price')) {
+            $total = $request->input('total_price');
+            if (!is_numeric($total) || $total < 0) $errors[] = 'Tổng tiền không hợp lệ'; else $payload['total_price'] = $total;
+        }
+        if ($request->has('status')) {
+            $status = (string) $request->input('status');
+            if (trim($status) === '') $errors[] = 'Trạng thái là bắt buộc'; else $payload['status'] = $status;
+        }
+        if ($request->has('special_requests')) $payload['special_requests'] = $request->input('special_requests');
+
+        if (!empty($errors)) return back()->withInput()->with('form_errors', $errors);
+
+        $room_reservation->update($payload);
         return back()->with('success','Cập nhật đặt phòng thành công');
     }
 

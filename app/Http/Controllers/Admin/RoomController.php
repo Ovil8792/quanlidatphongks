@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Category;
 use App\Models\khoanh;
 use App\Models\Room;
+use App\Models\Room_reservation;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Bill; // Added this import for Bill model
+use Illuminate\Support\Facades\Log; 
 
 class RoomController extends Controller
 {
@@ -62,6 +63,19 @@ class RoomController extends Controller
      */
     public function store(Request $request)
     {
+
+
+        // Kiểm tra mã phòng và tầng không bị trùng lặp
+        $existingRoom = Room::where('code', $request->code)
+                           ->where('floor', $request->floor)
+                           ->first();
+        
+        if ($existingRoom) {
+            return back()->withErrors([
+                'code' => 'Mã phòng ' . $request->code . ' đã tồn tại ở tầng ' . $request->floor
+            ])->withInput();
+        }
+
         $name = $request->input("name");
         $code = $request->input("code");
         $floor = $request->input("floor");
@@ -99,29 +113,31 @@ class RoomController extends Controller
             $img->storeAs("/upload",$filename);
         }
         
-           $room =  Room::create([
-        "name" => $name,
-        "code" => $code,
-        "floor" => $floor,
-        "requirements" => $require,
-        "status" => $status,
-        "category_id" => $cate,
-        "pimage" => $filename,
-        "description" => $desc,
-        "base_price" => $bprice,
-        "room_area" => $room_area,
-            "bathroom_area" => $bathroom_area,
-            "max_guests" => $max_guests,
-            "bed_count" => $bed_count,
-            "amenities" => $amenityText,
-    ]);
-            // dd($idnewroom);
+        try {
+            $room = Room::create([
+                "name" => $name,
+                "code" => $code,
+                "floor" => $floor,
+                "requirements" => $require,
+                "status" => $status,
+                "category_id" => $cate,
+                "pimage" => $filename,
+                "description" => $desc,
+                "base_price" => $bprice,
+                "room_area" => $room_area,
+                "bathroom_area" => $bathroom_area,
+                "max_guests" => $max_guests,
+                "bed_count" => $bed_count,
+                "amenities" => $amenityText,
+            ]);
+            
             khoanh::create(["imgname" => $filename, "roomid" => $room->id]);
-            return redirect(route("admin.roomlist"));
-        // } catch (\Throwable $th) {
-        //     throw $th;
-        // }
-        
+            return redirect(route("admin.roomlist"))->with('success', 'Thêm phòng thành công!');
+            
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi thêm phòng: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Có lỗi xảy ra khi thêm phòng: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**
@@ -151,7 +167,12 @@ class RoomController extends Controller
             }
         } catch (\Throwable $e) {}
 
-        return view("admin.Room.info",compact("roominf","imglist","id","activeBooking"));
+        // Lấy danh sách reviews cho phòng này
+        $reviews = \App\Models\Review::where('roomid', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view("admin.Room.info",compact("roominf","imglist","id","activeBooking","reviews"));
     }
 
     /**
@@ -278,5 +299,20 @@ class RoomController extends Controller
     {
         Room::destroy($id);
         return redirect(route("admin.roomlist"));
+    }
+
+    /**
+     * Get used room codes for a specific floor
+     */
+    public function getUsedRoomCodes($floor)
+    {
+        $usedCodes = Room::where('floor', $floor)->pluck('code')->toArray();
+        return response()->json(['used_codes' => $usedCodes]);
+    }
+    public function reservationList()
+    {
+        $reservations = Room_reservation::with(['room', 'user'])->orderBy('created_at', 'desc')->get();
+
+        return view('admin.Room.reservation_list', compact('reservations'));
     }
 }

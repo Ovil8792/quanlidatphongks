@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Bill;
 use App\Models\DetailedBill;
+use App\Models\Room_reservation;
 
 class PaymentController extends Controller
 {
@@ -27,10 +28,23 @@ class PaymentController extends Controller
 
     public function processVNPay(Request $request, $billId)
     {
-        $bill = Bill::findOrFail($billId);
-        
-        if ($bill->status !== 'pending') {
-            return redirect()->route('client.index')->with('error', 'Đơn hàng này không thể thanh toán.');
+        // Ở luồng mới, $billId có thể là ID reservation khi chưa có bill
+        $reservation = Room_reservation::find($billId);
+        $amount = null;
+        $displayName = '';
+        if ($reservation) {
+            if ($reservation->status !== 'pending') {
+                return redirect()->route('client.index')->with('error', 'Đơn đặt này không thể thanh toán.');
+            }
+            $amount = $reservation->total_price;
+            $displayName = $reservation->guest_name;
+        } else {
+            $bill = Bill::findOrFail($billId);
+            if ($bill->status !== 'pending') {
+                return redirect()->route('client.index')->with('error', 'Đơn hàng này không thể thanh toán.');
+            }
+            $amount = $bill->total;
+            $displayName = $bill->guest_name;
         }
 
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
@@ -38,10 +52,10 @@ class PaymentController extends Controller
         $vnp_TmnCode = "C5QKNTNE"; // Mã website tại VNPAY 
         $vnp_HashSecret = "T3KLE7F6DEYS5NTFJ06U5SM5TOWZHSHF"; // Chuỗi bí mật
 
-        $vnp_TxnRef = $billId; // Sử dụng bill ID làm mã đơn hàng
-        $vnp_OrderInfo = 'Thanh toán đặt phòng - ' . $bill->guest_name;
+        $vnp_TxnRef = $billId; // Dùng ID reservation/bill làm mã giao dịch
+        $vnp_OrderInfo = 'Thanh toán đặt phòng - ' . $displayName;
         $vnp_OrderType = 'billpayment';
-        $vnp_Amount = $bill->total * 100; // VNPay yêu cầu số tiền nhân với 100
+        $vnp_Amount = $amount * 100; // VNPay yêu cầu số tiền nhân với 100
         $vnp_Locale = 'vn';
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
 
@@ -82,21 +96,23 @@ class PaymentController extends Controller
             $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
         }
 
-        // Lưu bill_id vào session để xử lý khi VNPay trả về
-        session(['vnpay_bill_id' => $billId]);
+        // Lưu id vào session để xử lý khi VNPay trả về
+        session(['vnpay_target_id' => $billId]);
 
         return redirect()->to($vnp_Url);
     }
 
     public function vnpayReturn(Request $request)
     {
-        $billId = session('vnpay_bill_id');
+        $targetId = session('vnpay_target_id');
         
-        if (!$billId) {
+        if (!$targetId) {
             return redirect()->route('client.index')->with('error', 'Không tìm thấy thông tin đơn hàng.');
         }
-
-        $bill = Bill::findOrFail($billId);
+        
+        // Có thể là reservation hoặc bill
+        $reservation = Room_reservation::find($targetId);
+        $bill = $reservation ? null : Bill::findOrFail($targetId);
         
         // Kiểm tra response từ VNPay
         $vnp_ResponseCode = $request->get('vnp_ResponseCode');
@@ -129,18 +145,72 @@ class PaymentController extends Controller
         if ($secureHash == $vnp_SecureHash) {
             if ($vnp_ResponseCode == "00") {
                 // Thanh toán thành công
-                $bill->update([
-                    'status' => 'paid',
-                    'payment_date' => now(),
-                ]);
+                if ($reservation) {
+                    // Double-check overlap before confirming (phòng có thể vừa được mở/khóa)
+                    $overlapPaid = Bill::where('room_id', $reservation->room_id)
+                        ->where('status', 'paid')
+                        ->whereDate('checkin', '<', Carbon::parse($reservation->end_time)->toDateString())
+                        ->whereDate('checkout', '>', Carbon::parse($reservation->start_time)->toDateString())
+                        ->exists();
+                    // Bổ sung kiểm tra paid qua detailedbills nếu bill không có room_id
+                    $overlapPaidViaDetails = DetailedBill::where('id_room', $reservation->room_id)
+                        ->whereHas('bill', function($q) use ($reservation) {
+                            $q->whereIn('status', ['paid','Paid','PAID'])
+                              ->whereDate('checkin', '<', Carbon::parse($reservation->end_time)->toDateString())
+                              ->whereDate('checkout', '>', Carbon::parse($reservation->start_time)->toDateString());
+                        })
+                        ->exists();
+                    $overlapConfirmed = Room_reservation::where('room_id', $reservation->room_id)
+                        ->where('id', '!=', $reservation->id)
+                        ->whereIn('status', ['confirmed'])
+                        ->whereDate('start_time', '<', Carbon::parse($reservation->end_time)->toDateString())
+                        ->whereDate('end_time', '>', Carbon::parse($reservation->start_time)->toDateString())
+                        ->exists();
+                    if ($overlapPaid || $overlapPaidViaDetails || $overlapConfirmed) {
+                        // Trả về failed nếu vừa phát hiện chồng lấn
+                        $reservation->update(['status' => 'failed']);
+                        session()->forget(['vnpay_target_id']);
+                        return redirect()->route('dathang.cancel')->with('error', 'Khoảng thời gian vừa không còn khả dụng. Vui lòng chọn ngày khác hoặc phòng khác.');
+                    }
+                    // Tạo bill từ reservation
+                    $bill = Bill::create([
+                        'user_id' => $reservation->user_id,
+                        'room_id' => $reservation->room_id,
+                        'total' => $reservation->total_price,
+                        'status' => 'paid',
+                        'checkin' => $reservation->start_time,
+                        'checkout' => $reservation->end_time,
+                        'guest_name' => $reservation->guest_name,
+                        'guest_email' => $reservation->guest_email,
+                        'guest_phone' => $reservation->guest_phone,
+                        'booking_date' => now(),
+                        'payment_date' => now(),
+                    ]);
+                    DetailedBill::create([
+                        'id_bill' => $bill->id,
+                        'id_room' => $reservation->room_id,
+                        'room_rate' => optional($reservation->room)->base_price ?? 0,
+                        'quantity' => Carbon::parse($reservation->end_time)->diffInDays(Carbon::parse($reservation->start_time)),
+                    ]);
+                    $reservation->update(['status' => 'confirmed']);
+                } else if ($bill) {
+                    $bill->update([
+                        'status' => 'paid',
+                        'payment_date' => now(),
+                    ]);
+                }
 
-                session()->forget(['vnpay_bill_id', 'booking', 'current_bill_id']);
+                session()->forget(['vnpay_target_id', 'booking', 'current_bill_id', 'current_reservation_id']);
                 
                 return redirect()->route('dathang.success')->with('success', 'Thanh toán thành công! Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.');
             } else {
                 // Thanh toán thất bại
-                $bill->update(['status' => 'failed']);
-                session()->forget(['vnpay_bill_id', 'booking', 'current_bill_id']);
+                if ($reservation) {
+                    $reservation->update(['status' => 'failed']);
+                } else if ($bill) {
+                    $bill->update(['status' => 'failed']);
+                }
+                session()->forget(['vnpay_target_id', 'booking', 'current_bill_id', 'current_reservation_id']);
                 
                 return redirect()->route('dathang.cancel')->with('error', 'Thanh toán thất bại. Mã lỗi: ' . $vnp_ResponseCode);
             }

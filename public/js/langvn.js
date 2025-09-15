@@ -43,6 +43,15 @@ flatpickr.l10ns.vn = {
     },
     firstDayOfWeek: 1,
     rangeSeparator: " đến ",
+    scrollTitle: "Cuộn để tăng",
+    toggleTitle: "Nhấp để chuyển đổi",
+    amPM: ["AM", "PM"],
+    yearAriaLabel: "Năm",
+    monthAriaLabel: "Tháng",
+    hourAriaLabel: "Giờ",
+    minuteAriaLabel: "Phút",
+    time_24hr: false
 };
 
+// Đăng ký locale tiếng Việt
 flatpickr.localize(flatpickr.l10ns.vn);

@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card shadow-lg border-0 rounded-4">
-                <div class="card-header bg-success text-white text-center py-4">
+                <div class="card-header text-white text-center py-4" style="background-color:#dfa974;">
                     <div class="mb-3">
                         <i class="fa fa-check-circle fa-4x"></i>
                     </div>
@@ -19,8 +19,8 @@
                     </div>
 
                     <!-- Thông tin đặt phòng -->
-                    <div class="booking-details bg-light rounded-3 p-4 mb-4">
-                        <h5 class="text-primary mb-3">
+                    <div class="booking-details rounded-3 p-4 mb-4" style="background: #fff7ee;">
+                        <h5 class="mb-3" style="color:#dfa974;">
                             <i class="fa fa-info-circle me-2"></i>Chi tiết đặt phòng
                         </h5>
                         <div class="row">
@@ -35,13 +35,13 @@
                                 </div>
                                 <div class="detail-item mb-3">
                                     <strong><i class="fa fa-calendar-check me-2"></i>Ngày nhận:</strong>
-                                    <span class="ms-2">{{ \Carbon\Carbon::parse($checkin)->format('d/m/Y H:i') }}</span>
+                                    <span class="ms-2">{{ \Carbon\Carbon::parse($checkin)->format('d/m/Y') }}</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="detail-item mb-3">
                                     <strong><i class="fa fa-calendar-times me-2"></i>Ngày trả:</strong>
-                                    <span class="ms-2">{{ \Carbon\Carbon::parse($checkout)->format('d/m/Y H:i') }}</span>
+                                    <span class="ms-2">{{ \Carbon\Carbon::parse($checkout)->format('d/m/Y') }}</span>
                                 </div>
                                 <div class="detail-item mb-3">
                                     <strong><i class="fa fa-moon me-2"></i>Số đêm:</strong>
@@ -112,7 +112,7 @@
 
                     <!-- Nút hành động -->
                     <div class="action-buttons text-center">
-                        <a href="{{ route('dathang.process-payment') }}" class="btn btn-primary btn-lg px-5 py-3 me-3">
+                        <a href="{{ route('payment.vnpay', ['bill_id' => $bill_id]) }}" class="btn btn-primary btn-lg px-5 py-3 me-3" style="background-color:#dfa974;border-color:#dfa974;">
                             <i class="fa fa-credit-card me-2"></i>Thanh toán ngay
                         </a>
                         <a href="{{ route('client.index') }}" class="btn btn-outline-secondary btn-lg px-4 py-3">

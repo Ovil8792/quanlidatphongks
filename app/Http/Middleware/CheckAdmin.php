@@ -16,12 +16,14 @@ class CheckAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check() && Auth::user()->role === 'admin') {
-            return $next($request);
+        if (Auth::guard('admin')->check()) {
+            if (Auth::guard('admin')->user()->role === 'admin' || Auth::guard('admin')->user()->role === 'staff') {
+                return $next($request);
+            } else {
+                return redirect()->route('client.index')->with('error', 'Bạn không có quyền truy cập vào trang này.');
+            }
+        } else {
+            return redirect()->route('admin.login');
         }
-        else{
-            return redirect()->route('client.index')->with('error', 'Bạn không có quyền truy cập vào trang này.');
-        }
-        // return redirect()->route('login');
     }
 }

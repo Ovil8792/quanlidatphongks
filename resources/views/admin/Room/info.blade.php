@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm">
+      <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
           <h5 class="mb-0">Ảnh phòng</h5>
           <a href="{{ route('admin.tostorepic',['id'=>$id]) }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i> Thêm ảnh</a>
@@ -120,6 +120,91 @@
               </div>
             @endforeach
           </div>
+        </div>
+      </div>
+
+      <!-- Reviews Section -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+          <h5 class="mb-0"><i class="bi bi-star-fill text-warning me-2"></i>Đánh giá từ khách hàng</h5>
+        </div>
+        <div class="card-body">
+          @if(isset($reviews) && count($reviews) > 0)
+            <!-- Review Statistics -->
+            <div class="row mb-4">
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-light rounded">
+                  <div class="h4 text-primary mb-1">{{ count($reviews) }}</div>
+                  <small class="text-muted">Tổng đánh giá</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-light rounded">
+                  <div class="h4 text-warning mb-1">{{ number_format($reviews->avg('rating'), 1) }}</div>
+                  <small class="text-muted">Điểm trung bình</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-light rounded">
+                  <div class="h4 text-success mb-1">{{ $reviews->where('rating', 5)->count() }}</div>
+                  <small class="text-muted">5 sao</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-light rounded">
+                  <div class="h4 text-info mb-1">{{ $reviews->where('rating', '>=', 4)->count() }}</div>
+                  <small class="text-muted">4+ sao</small>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Reviews List -->
+            <div class="row g-3">
+              @foreach($reviews as $review)
+                <div class="col-12">
+                  <div class="border rounded p-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+                          <i class="bi bi-person-fill text-primary"></i>
+                        </div>
+                        <div>
+                          <div class="fw-semibold">Khách hàng #{{ $review->userid ?? 'N/A' }}</div>
+                          <small class="text-muted">
+                            {{ $review->created_at ? \Carbon\Carbon::parse($review->created_at)->format('d/m/Y H:i') : 'N/A' }}
+                          </small>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <div class="rating-display">
+                          @for($i = 1; $i <= 5; $i++)
+                            @if($i <= floor($review->rating ?? 0))
+                              <i class="bi bi-star-fill text-warning"></i>
+                            @elseif($i == ceil($review->rating ?? 0) && ($review->rating ?? 0) - floor($review->rating ?? 0) >= 0.5)
+                              <i class="bi bi-star-half text-warning"></i>
+                            @else
+                              <i class="bi bi-star text-muted"></i>
+                            @endif
+                          @endfor
+                        </div>
+                        <small class="text-muted">{{ number_format($review->rating, 1) }}/5.0</small>
+                      </div>
+                    </div>
+                    @if($review->comment)
+                      <div class="mt-2">
+                        <p class="mb-0 text-dark">{{ $review->comment }}</p>
+                      </div>
+                    @endif
+                  </div>
+                </div>
+              @endforeach
+            </div>
+          @else
+            <div class="text-center py-4">
+              <i class="bi bi-chat-dots text-muted fs-1"></i>
+              <p class="text-muted mt-2">Chưa có đánh giá nào cho phòng này</p>
+            </div>
+          @endif
         </div>
       </div>
     </div>

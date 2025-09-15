@@ -30,10 +30,13 @@ class RoomAmenitiesController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255'
-        ]);
-        Room_amenities::create($data);
+        $errors = [];
+        $name = (string) $request->input('name');
+        if (trim($name) === '') $errors[] = 'Tên tiện ích là bắt buộc';
+        elseif (mb_strlen($name) > 255) $errors[] = 'Tên tiện ích không được quá 255 ký tự';
+        if (!empty($errors)) return back()->withInput()->with('form_errors', $errors);
+
+        Room_amenities::create(['name' => $name]);
         return redirect()->route('admin.amenities')->with('success','Thêm tiện ích thành công');
     }
 

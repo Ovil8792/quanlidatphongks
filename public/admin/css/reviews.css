@@ -1,0 +1,96 @@
+/* Reviews Section Styling */
+.rating-display {
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.rating-display i {
+    font-size: 16px;
+    margin-right: 2px;
+}
+
+.rating-display i.bi-star-fill {
+    color: #ffc107;
+}
+
+.rating-display i.bi-star-half {
+    color: #ffc107;
+}
+
+.rating-display i.bi-star {
+    color: #dee2e6;
+}
+
+/* Review Card Styling */
+.review-card {
+    transition: all 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Review Item Styling */
+.border.rounded.p-3.bg-light {
+    border-color: #e9ecef !important;
+    background-color: #f8f9fa !important;
+    transition: all 0.3s ease;
+}
+
+.border.rounded.p-3.bg-light:hover {
+    background-color: #ffffff !important;
+    border-color: #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* User Avatar Styling */
+.bg-primary.bg-opacity-10.rounded-circle.p-2 {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bg-primary.bg-opacity-10.rounded-circle.p-2 i {
+    font-size: 18px;
+}
+
+/* Rating Score Styling */
+.text-end small {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Comment Text Styling */
+.text-dark {
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+/* Empty State Styling */
+.text-center.py-4 i {
+    opacity: 0.5;
+}
+
+.text-center.py-4 p {
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .rating-display i {
+        font-size: 14px;
+    }
+    
+    .bg-primary.bg-opacity-10.rounded-circle.p-2 {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .bg-primary.bg-opacity-10.rounded-circle.p-2 i {
+        font-size: 16px;
+    }
+}

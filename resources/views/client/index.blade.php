@@ -33,12 +33,12 @@
     <form action="{{ route('search.pending') }}" method="GET">
         <div class="check-date">
             <label for="date-in">{{ __('messages.cin') }}:</label>
-            <input type="text" id="date-in" name="date_in">
+            <input type="date" id="date-in" name="date_in" class="form-control" required>
             <i class="icon_calendar"></i>
         </div>
         <div class="check-date">
             <label for="date-out">{{ __('messages.cout') }}:</label>
-            <input type="text" id="date-out" name="date_out">
+            <input type="date" id="date-out" name="date_out" class="form-control" required>
             <i class="icon_calendar"></i>
         </div>
         <div class="select-option">
@@ -59,6 +59,7 @@
                 @endforeach
             </select>
         </div>
+
         <button type="submit">{{ __('messages.checkavai') }}</button>
     </form>
 </div>
@@ -372,7 +373,7 @@
         const suggestionsBox = document.getElementById('suggestions');
         const selectedLocation = document.getElementById('selectedLocation');
         let timeout;
-
+        if(searchInput || selectedLocation || suggestionsBox){
         document.addEventListener('click', (e) => {
             if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
                 suggestionsBox.style.display = 'none';
@@ -426,6 +427,7 @@
                     });
             }, 300);
         });
+        }
     });
 </script>
 @endsection
