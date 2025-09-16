@@ -9,6 +9,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+        <!-- Jquery UI -->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+    <!-- Morris -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
     <!-- Reviews CSS -->
     <link href="{{ asset('admin/css/reviews.css') }}" rel="stylesheet">
     <!-- Custom CSS -->
@@ -315,7 +319,12 @@
                 </a>
             </div>
             
-           
+            <div class="nav-item">
+                <a href="{{ route('admin.statistical.index') }}" class="nav-link {{ request()->routeIs('admin.statistical*') ? 'active' : '' }}">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Thống kê</span>
+                </a>
+            </div>
         </div>
     </nav>
 
@@ -351,9 +360,174 @@
         </div>
     </div>
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <!-- jQuery UI -->
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+    <script>
+        $(function() {
+            $("#datepicker").datepicker({
+                dateFormat: 'dd/mm/yy',
+                showButtonPanel: true,
+                changeMonth: true,
+                changeYear: true,
+                yearRange: 'c-10:c+10'
+            });
+            $("#datepicker2").datepicker({
+                dateFormat: 'dd/mm/yy',
+                showButtonPanel: true,
+                changeMonth: true,
+                changeYear: true,
+                yearRange: 'c-10:c+10'
+            });
+        });
+        $('#statistical-filter').click(function(e) {
+            e.preventDefault();
+            
+            var _token = $("input[name='_token']").val();
+            var from = $("#datepicker").val();
+            var to = $("#datepicker2").val();
+
+            // Validate date inputs
+            if (!from || !to) {
+                alert('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc');
+                return;
+            }
+
+            // Convert date format from dd/mm/yyyy to yyyy-mm-dd
+            var fromFormatted = convertDateFormat(from);
+            var toFormatted = convertDateFormat(to);
+
+            $.ajax({
+                url: "{{ route('admin.statistical.filter') }}",
+                method: "POST",
+                dataType: "JSON",
+                data: {
+                    _token: _token,
+                    from: fromFormatted,
+                    to: toFormatted
+                },
+                success: function(data) {
+                    if (data && data.length > 0) {
+                        // Clear previous chart
+                        $('#result').empty();
+                        
+                        // Normalize revenue data for better visualization
+                        var normalizedData = data.map(function(item) {
+                            return {
+                                day: item.day,
+                                total_bookings: parseInt(item.total_bookings) || 0,
+                                total_customers: parseInt(item.total_customers) || 0,
+                                total_revenue: Math.round((parseInt(item.total_revenue) || 0) / 100000) // Convert to hundred thousands
+                            };
+                        });
+                        
+                        // Create new chart with filtered data
+                        chart = new Morris.Bar({
+                            element: 'result',
+                            data: normalizedData,
+                            xkey: 'day',
+                            ykeys: ['total_bookings', 'total_customers', 'total_revenue'],
+                            labels: ['Đặt phòng', 'Khách hàng', 'Doanh thu (x100k)'],
+                            barColors: ['#2563eb', '#059669', '#d97706'],
+                            hideHover: 'auto',
+                            resize: true,
+                            parseTime: false
+                        });
+                    } else {
+                        $('#result').html('<div class="text-center p-4"><p class="text-muted">Không có dữ liệu thống kê trong khoảng thời gian đã chọn</p></div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading chart data:', error);
+                    $('#result').html('<div class="text-center p-4"><p class="text-danger">Lỗi khi tải dữ liệu thống kê</p></div>');
+                }
+            });
+        });
+
+        // Function to convert date format from dd/mm/yyyy to yyyy-mm-dd
+        function convertDateFormat(dateString) {
+            if (!dateString) return '';
+            var parts = dateString.split('/');
+            if (parts.length === 3) {
+                return parts[2] + '-' + parts[1] + '-' + parts[0];
+            }
+            return dateString;
+        }
+    </script>
+
+        <!-- Morris -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+
+     <script>
+         var chart;
+         
+         $(document).ready(function() {
+             // Initialize chart with sample data
+             initializeChart();
+         });
+         
+         function initializeChart() {
+             if ($('#result').length > 0 && typeof Morris !== 'undefined') {
+                 // Load initial data via AJAX
+                 loadChartData();
+             }
+         }
+         
+         function loadChartData() {
+             var _token = $("input[name='_token']").val();
+             
+             $.ajax({
+                 url: "{{ route('admin.statistical.filter') }}",
+                 method: "POST",
+                 dataType: "JSON",
+                 data: {
+                     _token: _token,
+                     from: '',
+                     to: ''
+                 },
+                 success: function(data) {
+                     if (data && data.length > 0) {
+                         // Clear previous chart
+                         $('#result').empty();
+                         
+                         // Normalize revenue data for better visualization
+                         var normalizedData = data.map(function(item) {
+                             return {
+                                 day: item.day,
+                                 total_bookings: parseInt(item.total_bookings) || 0,
+                                 total_customers: parseInt(item.total_customers) || 0,
+                                 total_revenue: Math.round((parseInt(item.total_revenue) || 0) / 100000) // Convert to hundred thousands
+                             };
+                         });
+                         
+                         // Create new chart
+                         chart = new Morris.Bar({
+                             element: 'result',
+                             data: normalizedData,
+                             xkey: 'day',
+                             ykeys: ['total_bookings', 'total_customers', 'total_revenue'],
+                             labels: ['Đặt phòng', 'Khách hàng', 'Doanh thu (x100k)'],
+                             barColors: ['#2563eb', '#059669', '#d97706'],
+                             hideHover: 'auto',
+                             resize: true,
+                             parseTime: false
+                         });
+                     } else {
+                         $('#result').html('<div class="text-center p-4"><p class="text-muted">Không có dữ liệu thống kê</p></div>');
+                     }
+                 },
+                 error: function(xhr, status, error) {
+                     console.error('Error loading chart data:', error);
+                     $('#result').html('<div class="text-center p-4"><p class="text-danger">Lỗi khi tải dữ liệu thống kê</p></div>');
+                 }
+             });
+         }
+     </script>
+
     <!-- Custom JS -->
     <script>
         // Mobile sidebar toggle

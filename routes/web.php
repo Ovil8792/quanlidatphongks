@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ImageStorageController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\StatisticalController;
 use App\Http\Controllers\api\SearchController;
 use App\Http\Controllers\api\CookieController;
 use App\Http\Controllers\User\CustomerController;
@@ -129,6 +130,10 @@ Route::prefix("/administrator")->group(function () {
         Route::get("/", [BillController::class, "index"])->name("admin.bills.index");
         Route::get('/show/{bill}', [BillController::class, 'show'])->name('admin.bills.show');
         Route::put("/update-status/{id}", [BillController::class, "updateStatus"])->name("admin.bills.updateStatus");
+    });
+    Route::prefix("/statistical")->group(function () {
+        Route::get("/", [StatisticalController::class, "index"])->name("admin.statistical.index");
+        Route::post("/filter", [StatisticalController::class, "filter"])->name("admin.statistical.filter");
     });
 
     // Route::get("/tup",[RoomController::class,"totest"])->name("totest");
