@@ -1,11 +1,9 @@
 /storage/framework/cache/*
-/vendor/*
+!/storage/framework/cache/.gitignore
 
 /storage/framework/sessions/*
-!/storage/framework/sessions/.gitkeep
-
+!/storage/framework/sessions/.gitignore
 /storage/framework/views/*
-!/storage/framework/views/.gitkeep
-/public/storage/.gitignore
+!/storage/framework/views/.gitignore
+public/storage/*
 
-public/storage
