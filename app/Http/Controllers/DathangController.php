@@ -129,11 +129,10 @@ class DathangController extends Controller
                 $errors[] = 'Ngày trả phòng phải sau ngày nhận phòng';
             }
         }
-        $roomCount = $request->input('room_count');
-        if ($roomCount === null || $roomCount === '') {
-            $errors[] = 'Số phòng là bắt buộc';
-        } elseif (!is_numeric($roomCount) || (int)$roomCount < 1 || (int)$roomCount > 10) {
-            $errors[] = 'Số phòng phải từ 1 đến 10';
+        // room_count không còn yêu cầu từ phía client, mặc định 1 nếu không truyền
+        $roomCount = $request->input('room_count', 1);
+        if (!is_numeric($roomCount) || (int)$roomCount < 1) {
+            $roomCount = 1;
         }
         $total = $request->input('total');
         if ($total === null || $total === '') {
@@ -168,7 +167,7 @@ class DathangController extends Controller
         
         // Tính toán giá thực sự
         $pricePerNight = $room->base_price;
-        $roomCount = intval($data['room_count']);
+        $roomCount = intval($data['room_count'] ?? 1);
         $totalAmount = $pricePerNight * $nights * $roomCount;
 
         // Kiểm tra trùng lịch: nếu cùng phòng đã có đơn paid (bill) hoặc reservation confirmed trùng khoảng ngày thì chặn
@@ -218,7 +217,7 @@ class DathangController extends Controller
 
             DB::commit();
 
-            // Lưu thông tin vào session để sử dụng cho VNPay
+            // Lưu thông tin vào session để sử dụng cho VNPay (tuỳ chọn)
             session([
                 'current_reservation_id' => $reservation->id,
                 'booking_success' => [
@@ -237,17 +236,8 @@ class DathangController extends Controller
             // Xóa dữ liệu đặt phòng cũ
             session()->forget('booking_data');
 
-            // Trả về view thành công với thông tin đặt phòng
-            return view('client.room.booking_success', [
-                'bill_id' => $reservation->id,
-                'room_name' => $room->name,
-                'guest_name' => $data['name'],
-                'checkin' => $data['date_in'],
-                'checkout' => $data['date_out'],
-                'nights' => $nights,
-                'total' => $totalAmount,
-                'price_per_night' => $pricePerNight,
-            ]);
+            // Chuyển người dùng sang trang thanh toán VNPay ngay sau khi đặt phòng
+            return redirect()->route('payment.vnpay', ['bill_id' => $reservation->id]);
 
         } catch (\Exception $e) {
             DB::rollback();

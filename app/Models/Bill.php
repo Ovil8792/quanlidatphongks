@@ -8,10 +8,17 @@ class Bill extends Model
 {
     protected $fillable = [
         'user_id',
+        'room_id',
         'total',
         'status',
         'note',
         'payment_date',
+        'booking_date',
+        'checkin',
+        'checkout',
+        'guest_name',
+        'guest_email',
+        'guest_phone',
     ];
 
     // Quan hệ: Hóa đơn thuộc về 1 user (khách hàng)

@@ -64,21 +64,10 @@ class RoomController extends Controller
     public function store(Request $request)
     {
 
-
-        // Kiểm tra mã phòng và tầng không bị trùng lặp
-        $existingRoom = Room::where('code', $request->code)
-                           ->where('floor', $request->floor)
-                           ->first();
-        
-        if ($existingRoom) {
-            return back()->withErrors([
-                'code' => 'Mã phòng ' . $request->code . ' đã tồn tại ở tầng ' . $request->floor
-            ])->withInput();
-        }
-
         $name = $request->input("name");
-        $code = $request->input("code");
         $floor = $request->input("floor");
+        // Tự động tạo mã phòng (không cần người dùng nhập)
+        $code = $this->generateRoomCode($floor);
         $require = $request->input("requirements");
         $status = $request->input("status","available");
         $cate = $request->input("category");
@@ -299,6 +288,34 @@ class RoomController extends Controller
     {
         Room::destroy($id);
         return redirect(route("admin.roomlist"));
+    }
+
+    /**
+     * Generate a unique room code.
+     * Ưu tiên các mã 1..9 chưa dùng ở tầng đã chọn và cũng chưa dùng toàn hệ thống (để tránh trùng unique(code)).
+     * Nếu hết, lấy mã kế tiếp dựa trên max(code) toàn hệ thống.
+     */
+    private function generateRoomCode($floor): string
+    {
+        // Thử các mã 1..9 trước
+        foreach (range(1, 9) as $c) {
+            // Nếu đã dùng ở tầng này hoặc đã dùng toàn hệ thống, bỏ qua
+            if (Room::where('floor', $floor)->where('code', (string)$c)->exists()) {
+                continue;
+            }
+            if (Room::where('code', (string)$c)->exists()) {
+                continue;
+            }
+            return (string)$c;
+        }
+
+        // Nếu hết 1..9, sinh theo mã lớn nhất hiện có + 1
+        $max = Room::max('code');
+        $next = (is_numeric($max) ? (int)$max : 0) + 1;
+        while (Room::where('code', (string)$next)->exists()) {
+            $next++;
+        }
+        return (string)$next;
     }
 
     /**

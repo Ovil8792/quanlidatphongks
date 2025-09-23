@@ -59,23 +59,6 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                @php
-                                    $code = [1,2,3,4,5,6,7,8,9];
-                                @endphp
-                                <div class="mb-3">
-                                    <label for="code" class="form-label">Mã phòng <span class="text-danger">*</span></label>
-                                    <select name="code" id="code" class="form-control @error('code') is-invalid @enderror" required>
-                                        <option value="">-- Chọn mã phòng --</option>
-                                        @foreach($code as $c)
-                                            <option value="{{ $c }}" {{ old('code') == $c ? 'selected' : '' }}>
-                                                {{ $c }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('code')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
                                 
                                 <div class="mb-3">
                                     <label for="floor" class="form-label">Tầng <span class="text-danger">*</span></label>
@@ -330,90 +313,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Room code filtering based on floor
+    // Floor select reference (kept for potential future use)
     const floorSelect = document.getElementById('floor');
-    const codeSelect = document.getElementById('code');
-    const allCodeOptions = Array.from(codeSelect.options).slice(1); // Bỏ qua option đầu tiên (-- Chọn mã phòng --)
-    
-    // Lưu trữ tất cả mã phòng ban đầu
-    const originalCodeOptions = allCodeOptions.map(option => ({
-        value: option.value,
-        text: option.text,
-        element: option
-    }));
-    
-    // Hàm lọc mã phòng theo tầng
-    async function filterRoomCodesByFloor(floor) {
-        if (!floor) {
-            // Nếu không chọn tầng, hiển thị tất cả mã phòng
-            originalCodeOptions.forEach(option => {
-                option.element.style.display = '';
-                option.element.disabled = false;
-            });
-            return;
-        }
-        
-        try {
-            // Gọi API để lấy mã phòng đã sử dụng
-            const response = await fetch(`/api/used-room-codes/${floor}`);
-            const data = await response.json();
-            const usedCodes = data.used_codes;
-            
-            // Ẩn các mã phòng đã sử dụng
-            let availableCodes = 0;
-            originalCodeOptions.forEach(option => {
-                if (usedCodes.includes(parseInt(option.value))) {
-                    option.element.style.display = 'none';
-                    option.element.disabled = true;
-                } else {
-                    option.element.style.display = '';
-                    option.element.disabled = false;
-                    availableCodes++;
-                }
-            });
-            
-            // Reset selection nếu mã phòng hiện tại đã bị ẩn
-            if (codeSelect.value && usedCodes.includes(parseInt(codeSelect.value))) {
-                codeSelect.value = '';
-            }
-            
-            // Hiển thị thông báo nếu không có mã phòng nào khả dụng
-            if (availableCodes === 0) {
-                // Thêm thông báo vào select
-                const noOptionMessage = codeSelect.querySelector('.no-available-message');
-                if (!noOptionMessage) {
-                    const option = document.createElement('option');
-                    option.className = 'no-available-message';
-                    option.value = '';
-                    option.textContent = '-- Không có mã phòng khả dụng ở tầng này --';
-                    option.disabled = true;
-                    codeSelect.appendChild(option);
-                }
-            } else {
-                // Xóa thông báo nếu có mã phòng khả dụng
-                const noOptionMessage = codeSelect.querySelector('.no-available-message');
-                if (noOptionMessage) {
-                    noOptionMessage.remove();
-                }
-            }
-            
-        } catch (error) {
-            console.error('Lỗi khi lấy dữ liệu mã phòng:', error);
-        }
-    }
-    
-    // Xử lý sự kiện thay đổi tầng
-    floorSelect.addEventListener('change', function() {
-        const selectedFloor = this.value;
-        const currentCode = codeSelect.value;
-        
-        // Reset mã phòng nếu đã chọn trước đó
-        if (currentCode) {
-            codeSelect.value = '';
-        }
-        
-        filterRoomCodesByFloor(selectedFloor);
-    });
     
     // Amenities handling
     const amenitiesCheckboxes = document.querySelectorAll('input[name="amenities_checkbox[]"]');
@@ -469,20 +370,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 field.classList.remove('is-invalid');
             }
         });
-        
-        // Kiểm tra logic nghiệp vụ
-        const selectedFloor = floorSelect.value;
-        const selectedCode = codeSelect.value;
-        
-        if (selectedFloor && selectedCode) {
-            // Kiểm tra xem mã phòng có bị ẩn không (đã được sử dụng)
-            const selectedOption = codeSelect.querySelector(`option[value="${selectedCode}"]`);
-            if (selectedOption && selectedOption.style.display === 'none') {
-                alert('Mã phòng này đã được sử dụng ở tầng này. Vui lòng chọn mã phòng khác!');
-                e.preventDefault();
-                return;
-            }
-        }
         
         if (!isValid) {
             e.preventDefault();

@@ -48,7 +48,7 @@
                 @foreach($bills as $bill)
                 <tr>
                   <td>{{ $bill->id }}</td>
-                  <td>{{ $bill->user->name ?? 'Không có tên' }}</td>
+                  <td>{{ $bill->guest_name ?? ($bill->user->name ?? 'Không có tên') }}</td>
                   <td>
                     @if($bill->booking_date)
                       {{ $bill->booking_date instanceof \Carbon\Carbon ? $bill->booking_date->format('d/m/Y H:i') : \Carbon\Carbon::parse($bill->booking_date)->format('d/m/Y H:i') }}
