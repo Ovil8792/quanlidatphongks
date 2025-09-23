@@ -80,7 +80,7 @@
                     </div>
                     <div class="ri-text">
                         <h4>{{ $v->name }}</h4>
-                        <h3>159$<span>/Pernight</span></h3>
+                        <h3>{{ $v->base_price }} VNĐ<span> Đêm</span></h3>
                         <table>
                             <tbody>
                                 <!-- <tr>

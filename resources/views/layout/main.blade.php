@@ -626,6 +626,38 @@ document.addEventListener('DOMContentLoaded', function(){
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset(url("")) }}/js/form-validate.js"></script>
 
+    @if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: @json(session('success')),
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    </script>
+    @endif
+
+    @if (session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: @json(session('error')),
+                showConfirmButton: false,
+                timer: 3500,
+                timerProgressBar: true
+            });
+        });
+    </script>
+    @endif
+
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
         axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

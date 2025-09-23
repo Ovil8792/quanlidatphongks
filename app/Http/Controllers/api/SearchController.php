@@ -8,6 +8,7 @@ use App\Models\Room_reservation;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
@@ -307,6 +308,40 @@ class SearchController extends Controller
         $query = Room::query();
         if (!empty($categoryId)) {
             $query->where('category_id', $categoryId);
+        }
+
+        // Lọc phòng theo khoảng ngày: loại bỏ phòng trùng ngày với đơn đã thanh toán/đặt trước
+        if (!empty($checkin) && !empty($checkout)) {
+            $cin = Carbon::parse($checkin)->startOfDay();
+            $cout = Carbon::parse($checkout)->startOfDay();
+
+            // loại bỏ phòng có Bill đã thanh toán (bảng bills) trùng khoảng
+            $query->whereNotExists(function($q) use ($cin, $cout) {
+                $q->select(DB::raw(1))
+                  ->from('bills')
+                  ->whereColumn('bills.room_id', 'rooms.id')
+                  ->whereIn('status', ['paid','Paid','PAID'])
+                  ->whereDate('checkin', '<', $cout->toDateString())
+                  ->whereDate('checkout', '>', $cin->toDateString());
+            });
+
+            // loại bỏ phòng có Bill qua detailedbills đã paid trùng khoảng
+            $query->whereNotExists(function($q) use ($cin, $cout) {
+                $q->select(DB::raw(1))
+                  ->from('detailedbills')
+                  ->join('bills', 'bills.id', '=', 'detailedbills.id_bill')
+                  ->whereColumn('detailedbills.id_room', 'rooms.id')
+                  ->whereIn('bills.status', ['paid','Paid','PAID'])
+                  ->whereDate('bills.checkin', '<', $cout->toDateString())
+                  ->whereDate('bills.checkout', '>', $cin->toDateString());
+            });
+
+            // loại bỏ phòng có reservation đã confirmed trùng khoảng
+            $query->whereDoesntHave('reservations', function($q) use ($cin, $cout) {
+                $q->whereIn('status', ['confirmed'])
+                  ->whereDate('start_time', '<', $cout->toDateString())
+                  ->whereDate('end_time', '>', $cin->toDateString());
+            });
         }
         $results = $query->get();
 

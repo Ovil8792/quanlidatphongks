@@ -57,6 +57,7 @@
                         <input type="hidden" name="room_id" value="{{ $room->id }}">
                         <input type="hidden" name="price_per_night" id="price_per_night" value="{{ $room->base_price }}">
                         <input type="hidden" name="total" id="total">
+                        <input type="hidden" name="room_count" id="room_count" value="1">
                         
                         <!-- Thông tin đặt phòng từ session -->
                         @if(isset($bookingData) && !empty($bookingData))
@@ -178,22 +179,7 @@
                                     <div class="form-text text-danger d-none" data-error-for="date_out"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">Số phòng cần đặt <span class="text-danger">*</span></label>
-                                    <select name="room_count" id="room_count" class="form-select @error('room_count') is-invalid @enderror" required>
-                                        <option value="">Chọn số phòng</option>
-                                        @php $rc = old('room_count', $bookingData['room_count'] ?? '') @endphp
-                                        <option value="1" {{ $rc == '1' ? 'selected' : '' }}>1 Phòng</option>
-                                        <option value="2" {{ $rc == '2' ? 'selected' : '' }}>2 Phòng</option>
-                                        <option value="3" {{ $rc == '3' ? 'selected' : '' }}>3 Phòng</option>
-                                        <option value="4" {{ $rc == '4' ? 'selected' : '' }}>4 Phòng</option>
-                                        <option value="5" {{ $rc == '5' ? 'selected' : '' }}>5 Phòng</option>
-                                    </select>
-                                    <div class="form-text">Chọn số lượng phòng bạn muốn đặt</div>
-                                    <div class="form-text text-danger d-none" data-error-for="room_count"></div>
-                                </div>
-                            </div>
+                            
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">&nbsp;</label>
@@ -503,12 +489,7 @@
                 if (!(cout > cin)) setErr('date_out', 'Ngày trả phòng phải sau ngày nhận phòng');
             }
 
-            const roomCount = getVal('room_count');
-            if (!roomCount) setErr('room_count', 'Số phòng là bắt buộc');
-            else {
-                const n = parseInt(roomCount, 10);
-                if (!(n >= 1 && n <= 10)) setErr('room_count', 'Số phòng phải từ 1 đến 10');
-            }
+            // room_count mặc định là 1 (ẩn), không cần người dùng chọn
 
             if (!total) {
                 setErr('date_in', 'Vui lòng chọn thời gian hợp lệ để tính toán giá!');
@@ -574,7 +555,7 @@
             // Lấy dữ liệu từ form
             const dateIn = document.getElementById('checkin').value;
             const dateOut = document.getElementById('checkout').value;
-            const roomCount = document.getElementById('room_count').value;
+            const roomCount = 1; // mặc định 1 phòng
             
             // Debug: Log dữ liệu để kiểm tra
             console.log('Check Availability - Date In:', dateIn);
@@ -582,8 +563,8 @@
             console.log('Check Availability - Room Count:', roomCount);
             
             // Kiểm tra dữ liệu đầu vào
-            if (!dateIn || !dateOut || !roomCount) {
-                showAvailabilityResult('Vui lòng điền đầy đủ thông tin: ngày nhận phòng, ngày trả phòng và số phòng!', 'danger');
+            if (!dateIn || !dateOut) {
+                showAvailabilityResult('Vui lòng điền đầy đủ thông tin: ngày nhận phòng và ngày trả phòng!', 'danger');
                 return;
             }
             

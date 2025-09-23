@@ -54,6 +54,7 @@
         <div class="select-option">
             <label for="search">Loại phòng:</label>
             <select name="category_id" id="category_id">
+                <option value="">Tất cả</option>
                 @foreach ($cat as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach

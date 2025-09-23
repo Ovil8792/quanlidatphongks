@@ -85,7 +85,6 @@ public function adminLogin()
 
 public function postAdminLogin(Request $request)
 {
-        // dd(session()->all());
     $credentials = $request->only('email', 'password');
     if (Auth::guard('admin')->attempt($credentials)) {
         $request->session()->regenerate();

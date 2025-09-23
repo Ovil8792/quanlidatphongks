@@ -45,6 +45,24 @@
 
         <div class="card-body p-4">
           <h6 class="fw-semibold mb-3 text-primary">
+            <i class="bi bi-person-vcard me-2"></i>Thông tin khách hàng
+          </h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="small text-muted">Họ và tên</div>
+              <div class="fw-semibold">{{ $bill->guest_name ?? ($bill->user->name ?? 'Không rõ') }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="small text-muted">Email</div>
+              <div class="fw-semibold">{{ $bill->guest_email ?? ($bill->user->email ?? 'Không rõ') }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="small text-muted">Số điện thoại</div>
+              <div class="fw-semibold">{{ $bill->guest_phone ?? 'Không rõ' }}</div>
+            </div>
+          </div>
+
+          <h6 class="fw-semibold mb-3 text-primary">
             <i class="bi bi-journal-text me-2"></i>Thông tin đặt phòng
           </h6>
           <div class="table-responsive">

@@ -48,22 +48,21 @@ Route::prefix("/")->group(function () {
     Route::get("/roomlist/{id}", [UserRoom::class, "CateRoomList"])->name("client.roomlist");
     Route::get("/roomdetail/{id}", [UserRoom::class, "show"])->name("client.roomdetail");
     Route::get("/payment", [PaymentController::class, "index"])->name("client.payment");
-     Route::get('/profile', [ProfileController::class, 'show'])->name('client.show');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('client.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('client.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('client.update');
-        Route::post("/vnpay-payment",[PaymentController::class,"processPayment"])->name("vnpay-payment");
-    Route::post("/review/{id}",[UserRoom::class,"RV"])->name("client.p_review");
-
+    Route::post("/vnpay-payment", [PaymentController::class, "processPayment"])->name("vnpay-payment");
+    Route::post("/review/{id}", [UserRoom::class, "RV"])->name("client.p_review");
 });
 // Route::get("/sapi", [SearchController::class, "autocompletingSearch"])->name("api.search");
 Route::get("/search", [SearchController::class, "search"])->name("search.pending");
 // Route::get("/sres", [SearchController::class, "Asearch"])->name("search.result");
-Route::get("/api/booking-cookies",[CookieController::class,"cookieRequest"]);
+Route::get("/api/booking-cookies", [CookieController::class, "cookieRequest"]);
 Route::post('/update-booking-cookie', function (Illuminate\Http\Request $request) {
     $loc = $request->input('selected_location');
     return response('OK')->cookie('bookingdata', json_encode(['location' => $loc]), 60 * 24);
 });
-Route::post("/api/filter-rooms",[SearchController::class,"filter"]);
+Route::post("/api/filter-rooms", [SearchController::class, "filter"]);
 Route::get("/api/available-rooms", [SearchController::class, "availableRooms"])->name("api.available-rooms");
 Route::get("/api/used-room-codes/{floor}", [App\Http\Controllers\Admin\RoomController::class, "getUsedRoomCodes"])->name("api.used-room-codes");
 
@@ -148,17 +147,28 @@ Route::post('/datphong/process-payment', [DathangController::class, 'processPaym
 Route::get('/datphong/success', [DathangController::class, 'paymentSuccess'])->name('dathang.success');
 Route::get('/datphong/cancel', [DathangController::class, 'paymentCancel'])->name('dathang.cancel');
 
-// Routes thanh toán VNPay
-Route::get('/payment/{bill_id}', [PaymentController::class, 'showPayment'])->name('payment.show');
-Route::get('/payment/vnpay/{bill_id}', [PaymentController::class, 'processVNPay'])->name('payment.vnpay');
+// Routes thanh toán VNPay (đặt route cụ thể trước route động để tránh xung đột)
 Route::get('/payment/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');
+Route::get('/payment/vnpay/{bill_id}', [PaymentController::class, 'processVNPay'])->whereNumber('bill_id')->name('payment.vnpay');
 Route::get('/payment/history', [PaymentController::class, 'showPaymentHistory'])->name('payment.history');
+Route::get('/invoice/{bill_id}', [PaymentController::class, 'showInvoice'])->name('payment.invoice');
+Route::get('/payment/{bill_id}', [PaymentController::class, 'showPayment'])->whereNumber('bill_id')->name('payment.show');
 
+// Route test thanh toán
+Route::get('/test-payment', [PaymentController::class, 'testPayment'])->name('test.payment');
+Route::post('/test-payment/create', [PaymentController::class, 'testCreatePayment'])->name('test.create-payment');
 
+// Route::get('/test-auth', function() {
+//     return [
+//         'user' => Auth::user(),
+//         'session' => session()->all(),
+//         'cookie' => request()->cookie(),
+//     ];
+// });
 
-    Route::get('/administrator/login', [AuthController::class, 'adminLogin'])->name('admin.login');
-    Route::post('/administrator/Plogin', [AuthController::class, 'postAdminLogin'])->name('admin.auth');
-    Route::get('/administrator/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
+Route::get('/administrator/login', [AuthController::class, 'adminLogin'])->name('admin.login');
+Route::post('/administrator/Plogin', [AuthController::class, 'postAdminLogin'])->name('admin.auth');
+Route::get('/administrator/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
 
 
 
@@ -169,7 +179,7 @@ Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postLogin'])->name('postLogin');
 
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/test-auth', function() {
+Route::get('/test-auth', function () {
     return [
         'user' => Auth::user(),
         'session' => session()->all(),

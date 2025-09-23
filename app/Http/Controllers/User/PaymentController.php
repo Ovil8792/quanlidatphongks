@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Models\Bill;
 use App\Models\DetailedBill;
 use App\Models\Room_reservation;
+use App\Models\Room;
 
 class PaymentController extends Controller
 {
@@ -48,7 +49,12 @@ class PaymentController extends Controller
         }
 
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_Returnurl = route('payment.vnpay.return');
+        // Xây dựng Return URL dựa trên base URL hiện tại để hỗ trợ deploy trong subfolder (WAMP/XAMPP)
+        $relativeReturn = route('payment.vnpay.return', [], false); // "/payment/vnpay/return"
+        $origin = $request->getSchemeAndHttpHost();                 // "http://localhost"
+        $baseUrl = $request->getBaseUrl();                          // ví dụ: "/quanlidatphongks/public" nếu chạy trong subfolder
+        $vnp_Returnurl = rtrim($origin . $baseUrl, '/') . $relativeReturn;
+        \Log::info('VNPay Return URL:', ['return_url' => $vnp_Returnurl, 'origin' => $origin, 'baseUrl' => $baseUrl, 'relative' => $relativeReturn]);
         $vnp_TmnCode = "C5QKNTNE"; // Mã website tại VNPAY 
         $vnp_HashSecret = "T3KLE7F6DEYS5NTFJ06U5SM5TOWZHSHF"; // Chuỗi bí mật
 
@@ -104,15 +110,15 @@ class PaymentController extends Controller
 
     public function vnpayReturn(Request $request)
     {
-        $targetId = session('vnpay_target_id');
-        
-        if (!$targetId) {
-            return redirect()->route('client.index')->with('error', 'Không tìm thấy thông tin đơn hàng.');
-        }
-        
+        // Ưu tiên dùng mã tham chiếu do VNPay trả về để không phụ thuộc session
+        $targetId = $request->get('vnp_TxnRef') ?: session('vnpay_target_id');
+
         // Có thể là reservation hoặc bill
-        $reservation = Room_reservation::find($targetId);
-        $bill = $reservation ? null : Bill::findOrFail($targetId);
+        $reservation = $targetId ? Room_reservation::find($targetId) : null;
+        $bill = (!$reservation && $targetId) ? Bill::find($targetId) : null;
+        if (!$reservation && !$bill) {
+            return redirect()->route('client.index')->with('error', 'Không tìm thấy đơn hàng/hóa đơn tương ứng.');
+        }
         
         // Kiểm tra response từ VNPay
         $vnp_ResponseCode = $request->get('vnp_ResponseCode');
@@ -201,8 +207,16 @@ class PaymentController extends Controller
                 }
 
                 session()->forget(['vnpay_target_id', 'booking', 'current_bill_id', 'current_reservation_id']);
-                
-                return redirect()->route('dathang.success')->with('success', 'Thanh toán thành công! Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.');
+
+                // Điều hướng về trang hóa đơn để người dùng thấy chi tiết thanh toán
+                $redirectBillId = isset($bill) && $bill ? $bill->id : (isset($reservation) && $reservation ? ($bill->id ?? null) : null);
+                // Nếu vừa tạo bill từ reservation thì $bill đã được gán ở trên
+                if (isset($bill) && $bill) {
+                    return redirect()->route('payment.invoice', ['bill_id' => $bill->id])
+                        ->with('success', 'Thanh toán thành công!');
+                }
+                // Trường hợp dự phòng nếu vì lý do nào đó chưa có bill
+                return redirect()->route('client.index')->with('success', 'Thanh toán thành công!');
             } else {
                 // Thanh toán thất bại
                 if ($reservation) {
@@ -228,5 +242,61 @@ class PaymentController extends Controller
             ->get();
 
         return view('client.payment.history', compact('bills'));
+    }
+
+    public function showInvoice($billId)
+    {
+        $bill = Bill::with(['details.room.category'])->findOrFail($billId);
+        
+        // Kiểm tra xem bill đã được thanh toán chưa
+        if ($bill->status !== 'paid') {
+            return redirect()->route('client.index')->with('error', 'Hóa đơn này chưa được thanh toán hoặc không tồn tại.');
+        }
+
+        return view('client.invoice', compact('bill'));
+    }
+
+    public function testPayment()
+    {
+        // Hiển thị trang test thanh toán
+        return view('client.test-payment');
+    }
+
+    public function testCreatePayment(Request $request)
+    {
+        // Lấy 1 phòng bất kỳ để test
+        $room = Room::orderBy('id')->first();
+        if (!$room) {
+            return redirect()->route('client.index')->with('error', 'Không có phòng để test thanh toán.');
+        }
+
+        // 2 đêm từ ngày mai
+        $checkin = Carbon::now()->addDay()->startOfDay();
+        $checkout = (clone $checkin)->addDays(2);
+        $nights = $checkout->diffInDays($checkin);
+
+        $pricePerNight = $room->base_price ?? 500000;
+        $totalAmount = $pricePerNight * $nights; // 1 phòng
+
+        // Tạo reservation pending để thanh toán
+        $reservation = Room_reservation::create([
+            'room_id' => $room->id,
+            'user_id' => auth()->id(),
+            'start_time' => $checkin->toDateString(),
+            'end_time' => $checkout->toDateString(),
+            'reserved_quantity' => 1,
+            'total_price' => $totalAmount,
+            'status' => 'pending',
+            'guest_name' => 'Nguyen Van Test',
+            'guest_email' => 'test@example.com',
+            'guest_phone' => '0900000000',
+            'temp_uid' => $request->cookie('temp_uid'),
+        ]);
+
+        // Lưu để tham chiếu sau
+        session(['current_reservation_id' => $reservation->id]);
+
+        // Chuyển hướng qua VNPay sử dụng id reservation
+        return redirect()->route('payment.vnpay', ['bill_id' => $reservation->id]);
     }
 }
