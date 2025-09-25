@@ -130,14 +130,22 @@
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
                                         <label for="max_guests" class="form-label">Số khách tối đa</label>
-                                        <input type="number" class="form-control" 
-                                               id="max_guests" name="max_guests" value="{{ old('max_guests') }}">
+                                        <select class="form-select" id="max_guests" name="max_guests">
+                                            <option value="1" {{ old('max_guests') == 1 ? 'selected' : '' }}>1</option>
+                                            <option value="2" {{ old('max_guests') == 2 ? 'selected' : '' }}>2</option>
+                                            <option value="3" {{ old('max_guests') == 3 ? 'selected' : '' }}>3</option>
+                                            <option value="4" {{ old('max_guests') == 4 ? 'selected' : '' }}>4</option>
+                                        </select>
                                     </div>
                                     
                                     <div class="col-md-6 mb-3">
                                         <label for="bed_count" class="form-label">Số lượng giường</label>
-                                        <input type="number" class="form-control" 
-                                               id="bed_count" name="bed_count" value="{{ old('bed_count') }}">
+                                        <select class="form-select" id="bed_count" name="bed_count">
+                                            <option value="1" {{ old('bed_count') == 1 ? 'selected' : '' }}>1</option>
+                                            <option value="2" {{ old('bed_count') == 2 ? 'selected' : '' }}>2</option>
+                                            <option value="3" {{ old('bed_count') == 3 ? 'selected' : '' }}>3</option>
+                                            <option value="4" {{ old('bed_count') == 4 ? 'selected' : '' }}>4</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>

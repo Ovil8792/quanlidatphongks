@@ -13,7 +13,9 @@ class AdminController extends Controller
      */
     public function index()
     {
-        session()->flush();
+        // Không xóa toàn bộ session để tránh làm mất phiên đăng nhập admin
+        // Nếu cần reset dữ liệu nội bộ, chỉ xóa key liên quan
+        session()->forget('check');
         $data = ["cate","rooms","ameni","imgst","trash","acc","contact","bill"];
         session(["check"=>$data]);
         return view("admin.index");

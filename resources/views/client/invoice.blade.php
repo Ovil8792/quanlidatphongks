@@ -96,6 +96,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php $invoiceSubtotal = 0; @endphp
                                     @foreach($bill->details as $detail)
                                     <tr>
                                         <td>
@@ -105,9 +106,17 @@
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($bill->checkin)->format('d/m/Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($bill->checkout)->format('d/m/Y') }}</td>
-                                        <td class="text-center">{{ $detail->quantity }} đêm</td>
-                                        <td class="text-end">{{ number_format($detail->room_rate, 0, ',', '.') }} VND</td>
-                                        <td class="text-end fw-bold">{{ number_format($detail->room_rate * $detail->quantity, 0, ',', '.') }} VND</td>
+                                        @php
+                                            $cin = \Carbon\Carbon::parse($bill->checkin)->startOfDay();
+                                            $cout = \Carbon\Carbon::parse($bill->checkout)->startOfDay();
+                                            $nights = max(1, (int) $cin->diffInDays($cout, true));
+                                            $rate = (int) ($detail->room_rate ?? 0);
+                                            $lineTotal = $rate * $nights;
+                                        @endphp
+                                        @php $invoiceSubtotal += $lineTotal; @endphp
+                                        <td class="text-center">{{ $nights }} đêm</td>
+                                        <td class="text-end">{{ number_format($rate, 0, ',', '.') }} VND</td>
+                                        <td class="text-end fw-bold">{{ number_format($lineTotal, 0, ',', '.') }} VND</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -126,7 +135,7 @@
                             </div>
                             <div class="col-md-4 text-end">
                                 <h3 class="text-success mb-0 fw-bold">
-                                    {{ number_format($bill->total, 0, ',', '.') }} VND
+                                    {{ number_format($invoiceSubtotal ?? 0, 0, ',', '.') }} VND
                                 </h3>
                             </div>
                         </div>

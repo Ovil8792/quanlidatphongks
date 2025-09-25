@@ -176,7 +176,7 @@ class PaymentController extends Controller
                         // Trả về failed nếu vừa phát hiện chồng lấn
                         $reservation->update(['status' => 'failed']);
                         session()->forget(['vnpay_target_id']);
-                        return redirect()->route('dathang.cancel')->with('error', 'Khoảng thời gian vừa không còn khả dụng. Vui lòng chọn ngày khác hoặc phòng khác.');
+                        return redirect()->route('client.index')->with('error', 'Khoảng thời gian vừa không còn khả dụng. Vui lòng chọn ngày khác hoặc phòng khác.');
                     }
                     // Tạo bill từ reservation
                     $bill = Bill::create([
@@ -192,11 +192,14 @@ class PaymentController extends Controller
                         'booking_date' => now(),
                         'payment_date' => now(),
                     ]);
+                    $nights = Carbon::parse($reservation->end_time)->diffInDays(Carbon::parse($reservation->start_time));
+                    // Ensure nights is at least 1 and non-negative
+                    $nights = max(1, (int) $nights);
                     DetailedBill::create([
                         'id_bill' => $bill->id,
                         'id_room' => $reservation->room_id,
                         'room_rate' => optional($reservation->room)->base_price ?? 0,
-                        'quantity' => Carbon::parse($reservation->end_time)->diffInDays(Carbon::parse($reservation->start_time)),
+                        'quantity' => $nights,
                     ]);
                     $reservation->update(['status' => 'confirmed']);
                 } else if ($bill) {
@@ -218,7 +221,7 @@ class PaymentController extends Controller
                 // Trường hợp dự phòng nếu vì lý do nào đó chưa có bill
                 return redirect()->route('client.index')->with('success', 'Thanh toán thành công!');
             } else {
-                // Thanh toán thất bại
+                // Thanh toán thất bại (người dùng hủy hoặc lỗi)
                 if ($reservation) {
                     $reservation->update(['status' => 'failed']);
                 } else if ($bill) {
@@ -226,7 +229,7 @@ class PaymentController extends Controller
                 }
                 session()->forget(['vnpay_target_id', 'booking', 'current_bill_id', 'current_reservation_id']);
                 
-                return redirect()->route('dathang.cancel')->with('error', 'Thanh toán thất bại. Mã lỗi: ' . $vnp_ResponseCode);
+                return redirect()->route('client.index')->with('error', 'Thanh toán đã bị hủy hoặc thất bại. Mã: ' . $vnp_ResponseCode);
             }
         } else {
             // Hash không khớp

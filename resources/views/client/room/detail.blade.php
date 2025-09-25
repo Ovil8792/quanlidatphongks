@@ -205,23 +205,11 @@
                 <br><br>
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body">
-
-
-                        <div class="d-flex flex-wrap gap-2 mb-4">
-                            <span class="badge bg-success">Vị trí 8,5</span>
-                            <span class="badge bg-primary">Dịch vụ 8,0</span>
-                            <span class="badge bg-info text-dark">Đáng giá tiền 7,9</span>
-                            <span class="badge bg-secondary">Cơ sở vật chất 7,6</span>
-                        </div>
-
-
                         <!-- Điểm vị trí -->
                         <div class="mb-4">
-                            <span class="fw-bold fs-6 text-success">8,5 Tuyệt vời</span><br>
-                            <small class="text-muted">Điểm đánh giá vị trí</small>
                             <p class="mb-0 mt-2">
                                 <i class="fa fa-map-marker-alt text-danger me-2"></i>
-                                Vị trí tuyệt vời - Cạnh bờ biển
+                                175 Lê Thánh Tông - Ngô Quyền - Hải Phòng
                             </p>
                         </div>
 
@@ -449,11 +437,17 @@
 
             @if(isset($reviews) && count($reviews) > 0)
             @foreach($reviews as $review)
-            <div class="review-item">
+            <div class="review-item d-flex gap-3 align-items-start">
                 <div class="ri-pic">
-                    <img src="{{ asset('img/room/avatar/avatar-1.jpg') }}" alt="Avatar">
+                    @php
+                        $u = $review->user ?? null;
+                        $avt = $u && !empty($u->avatar)
+                            ? asset(url('')) . '/upload/' . $u->avatar
+                            : asset(url('/img/avt.svg'));
+                    @endphp
+                    <img src="{{ $avt }}" alt="Avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f3f4f6;">
                 </div>
-                <div class="ri-text">
+                <div class="ri-text flex-grow-1">
                     <span>{{ $review->created_at ? $review->created_at->format('d M Y') : 'N/A' }}</span>
                     <div class="rating">
                         @for($i = 1; $i <= 5; $i++)
@@ -466,7 +460,7 @@
                             @endif
                             @endfor
                     </div>
-                    <h5>{{ $review->guest_name ?? 'Khách hàng' }}</h5>
+                    <h5 class="mb-1">{{ $u->name ?? 'Khách hàng' }}</h5>
                     <p>{{ $review->comment ?? 'Không có bình luận' }}</p>
                 </div>
             </div>
@@ -478,9 +472,15 @@
             </div>
             @endif
         </div>
-        @if (!session()->has('user'))
+        @if (Auth::check())
         <div class="review-add mt-4">
             <h4><i class="fa fa-edit me-2"></i>Viết đánh giá</h4>
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
             <form method="POST" action="{{ route('client.p_review', ['id' => $room->id]) }}" class="ra-form">
                 @csrf
                 <div class="row">
@@ -534,8 +534,11 @@
                 </div>
             </form>
         </div>
-    </div>
-    @endif
+        @else
+        <div class="alert alert-info mt-4">
+            Bạn cần đăng nhập để viết đánh giá. <a href="#" id="login-p">Đăng nhập ngay</a>
+        </div>
+        @endif
     </div>
 </section>
 <!-- Room Details Section End -->

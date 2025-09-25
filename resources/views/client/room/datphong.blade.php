@@ -29,29 +29,12 @@
                         </ul>
                     </div>
                     @endif
-
-                    @if(isset($bookingData) && !empty($bookingData))
-                        <div class="alert mb-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dfa974; color: #495057;">
-                            <i class="fa fa-lightbulb me-2" style="color: #dfa974;"></i>
-                            <strong style="color: #dfa974;">Thông tin từ trang chủ:</strong> 
-                            Dữ liệu đặt phòng của bạn đã được tự động điền. 
-                            Vui lòng kiểm tra và bổ sung thông tin cá nhân!
-                        </div>
-                        
-                        <!-- Debug: Hiển thị dữ liệu session -->
-                        <div class="alert alert-warning mb-4">
-                            <strong>Debug Session Data:</strong><br>
-                            <pre>{{ print_r($bookingData, true) }}</pre>
-                        </div>
-                        
-
-                    @else
-                        <div class="alert alert-warning mb-4">
-                            <strong>Không có dữ liệu session!</strong><br>
-                            Vui lòng quay lại trang chủ để nhập thông tin đặt phòng.
-                        </div>
-                    @endif
-                    
+                @php
+                use App\Models\TempUser;
+                    $name = TempUser::where('temp_uid', request()->cookie('temp_uid'))->first()->name;
+                    $phone = TempUser::where('temp_uid', request()->cookie('temp_uid'))->first()->phone;
+                    $email = TempUser::where('temp_uid', request()->cookie('temp_uid'))->first()->email;
+                @endphp
                     <form action="{{ route('dathang.store') }}" method="POST" id="bookingForm">
                         @csrf
                         <input type="hidden" name="room_id" value="{{ $room->id }}">
@@ -63,7 +46,7 @@
                         @if(isset($bookingData) && !empty($bookingData))
                             <div class="row mb-4">
                                 <div class="col-12">
-                                                                    <h5 class="fw-semibold mb-3" style="color: #dfa974;">
+                                <h5 class="fw-semibold mb-3" style="color: #dfa974;">
                                     <i class="bi bi-calendar-event me-2" style="color: #dfa974;"></i>Thông tin đặt phòng từ trang chủ
                                 </h5>
                                 </div>
@@ -129,7 +112,7 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Họ và tên <span class="text-danger">*</span></label>
                                     <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
-                                           value="{{ old('name', $bookingData['guest_name'] ?? '') }}" required placeholder="Nhập họ và tên">
+                                           value="{{ old('name',$name??Auth::user()->name )  }}" required placeholder="Nhập họ và tên">
                                     <div class="form-text text-danger d-none" data-error-for="name"></div>
                                 </div>
                             </div>
@@ -137,7 +120,7 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Số điện thoại <span class="text-danger">*</span></label>
                                     <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror" 
-                                           value="{{ old('phone', $bookingData['guest_phone'] ?? '') }}" required pattern="0[0-9]{9,10}" placeholder="0xxxxxxxxx">
+                                           value="{{ old('phone',$phone??Auth::user()->phone)  }}" required pattern="0[0-9]{9,10}" placeholder="0xxxxxxxxx">
                                     <div class="form-text text-danger d-none" data-error-for="phone"></div>
                                 </div>
                             </div>
@@ -145,7 +128,7 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
                                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
-                                           value="{{ old('email', $bookingData['guest_email'] ?? '') }}" required placeholder="example@email.com">
+                                           value="{{ old('email', $email??Auth::user()->email )  }}" required placeholder="example@email.com">
                                     <div class="form-text text-danger d-none" data-error-for="email"></div>
                                 </div>
                             </div>
@@ -180,7 +163,7 @@
                                 </div>
                             </div>
                             
-                            <div class="col-md-6">
+                            <!-- <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">&nbsp;</label>
                                     <div class="d-grid">
@@ -190,7 +173,7 @@
                                     </div>
                                     <div class="form-text">Kiểm tra trước khi đặt phòng</div>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- Kết quả kiểm tra khả năng đặt phòng -->
@@ -448,11 +431,10 @@
             }, 500);
         @endif
         
-        // Form validation đã được xử lý bởi BookingCalendarManager
-        // Chỉ cần kiểm tra thêm total
+        // Form validation + kiểm tra phòng trước khi submit
         document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             const total = document.getElementById('total').value;
-            const errs = [];
             const form = this;
             const getVal = (name) => (form.querySelector(`[name="${name}"]`)?.value || '').trim();
             const setErr = (name, msg) => { const el = document.querySelector(`[data-error-for="${name}"]`); if (el) { el.textContent = msg; el.classList.remove('d-none'); } };
@@ -489,19 +471,83 @@
                 if (!(cout > cin)) setErr('date_out', 'Ngày trả phòng phải sau ngày nhận phòng');
             }
 
-            // room_count mặc định là 1 (ẩn), không cần người dùng chọn
-
             if (!total) {
                 setErr('date_in', 'Vui lòng chọn thời gian hợp lệ để tính toán giá!');
             }
 
-            // Nếu có bất kỳ lỗi nào hiển thị, chặn submit
+            // Nếu có lỗi -> dừng lại
             const hasErr = Array.from(document.querySelectorAll('[data-error-for]')).some(el => !el.classList.contains('d-none') && el.textContent);
             if (hasErr) {
-                e.preventDefault();
                 document.querySelector('.alert-danger')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return false;
             }
+
+            // Không lỗi -> kiểm tra khả năng đặt phòng rồi mới submit
+            const availabilityResult = document.getElementById('availabilityResult');
+            const availabilityAlert = document.getElementById('availabilityAlert');
+            const availabilityMessage = document.getElementById('availabilityMessage');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const roomId = getVal('room_id');
+            const params = new URLSearchParams({
+                room_id: roomId,
+                date_in: dateIn,
+                date_out: dateOut
+            });
+
+            // UI loading
+            submitBtn.disabled = true;
+            const originalSubmitHtml = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang kiểm tra...';
+
+            fetch(`{{ route('dathang.check') }}?${params.toString()}`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success && result.available) {
+                    // Có thể đặt -> submit form thật
+                    form.submit();
+                } else {
+                    // Không thể đặt -> hiển thị cảnh báo và không submit
+                    if (availabilityMessage && availabilityAlert && availabilityResult) {
+                        availabilityMessage.innerHTML = `
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <strong>❌ Không thể đặt phòng!</strong><br>
+                                    • Phòng đã có đơn trong khoảng thời gian này.<br>
+                                    • <strong>Vui lòng chọn thời gian khác hoặc phòng khác!</strong>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                                </div>
+                            </div>
+                        `;
+                        availabilityAlert.className = 'alert border-0 rounded-3';
+                        availabilityAlert.style.background = 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)';
+                        availabilityAlert.style.border = '1px solid #dc3545 !important';
+                        availabilityAlert.style.color = '#721c24';
+                        availabilityResult.style.display = 'block';
+                        availabilityResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            })
+            .catch(() => {
+                if (availabilityMessage && availabilityAlert && availabilityResult) {
+                    availabilityMessage.innerHTML = 'Có lỗi khi kiểm tra khả năng đặt phòng. Vui lòng thử lại.';
+                    availabilityAlert.className = 'alert border-0 rounded-3';
+                    availabilityAlert.style.background = 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)';
+                    availabilityAlert.style.border = '1px solid #dc3545 !important';
+                    availabilityAlert.style.color = '#721c24';
+                    availabilityResult.style.display = 'block';
+                    availabilityResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalSubmitHtml;
+            });
         });
         
         // Flag để biết khi nào người dùng đang tương tác với input
@@ -544,111 +590,11 @@
             setTimeout(() => { userInteracting = false; }, 1000);
         });
         
-        // Xử lý nút "Kiểm tra khả năng đặt phòng"
-        const checkAvailabilityBtn = document.getElementById('checkAvailabilityBtn');
+        // Các phần tử hiển thị kết quả kiểm tra
         const availabilityResult = document.getElementById('availabilityResult');
         const availabilityAlert = document.getElementById('availabilityAlert');
         const availabilityMessage = document.getElementById('availabilityMessage');
         const submitBtn = document.getElementById('submitBtn');
-        
-        checkAvailabilityBtn.addEventListener('click', function() {
-            // Lấy dữ liệu từ form
-            const dateIn = document.getElementById('checkin').value;
-            const dateOut = document.getElementById('checkout').value;
-            const roomCount = 1; // mặc định 1 phòng
-            
-            // Debug: Log dữ liệu để kiểm tra
-            console.log('Check Availability - Date In:', dateIn);
-            console.log('Check Availability - Date Out:', dateOut);
-            console.log('Check Availability - Room Count:', roomCount);
-            
-            // Kiểm tra dữ liệu đầu vào
-            if (!dateIn || !dateOut) {
-                showAvailabilityResult('Vui lòng điền đầy đủ thông tin: ngày nhận phòng và ngày trả phòng!', 'danger');
-                return;
-            }
-            
-            // Kiểm tra ngày hợp lệ
-            const checkinDate = new Date(dateIn);
-            const checkoutDate = new Date(dateOut);
-            const now = new Date();
-            
-            if (checkinDate <= now) {
-                showAvailabilityResult('Ngày nhận phòng phải sau thời gian hiện tại!', 'danger');
-                return;
-            }
-            
-            if (checkoutDate <= checkinDate) {
-                showAvailabilityResult('Ngày trả phòng phải sau ngày nhận phòng!', 'danger');
-                return;
-            }
-            
-            // Hiển thị loading
-            checkAvailabilityBtn.disabled = true;
-            checkAvailabilityBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang kiểm tra...';
-
-            const roomId = document.querySelector('input[name="room_id"]').value;
-            const params = new URLSearchParams({
-                room_id: roomId,
-                date_in: dateIn,
-                date_out: dateOut
-            });
-
-            fetch(`{{ route('dathang.check') }}?${params.toString()}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => res.json())
-            .then(result => {
-                if (result.success && result.available) {
-                    showAvailabilityResult(`
-                        <div class="row">
-                            <div class="col-md-8">
-                                <strong>✅ Có thể đặt phòng!</strong><br>
-                                • Phòng: <strong>{{ $room->name }}</strong><br>
-                                • Thời gian: <strong>${formatDate(dateIn)}</strong> đến <strong>${formatDate(dateOut)}</strong>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
-                            </div>
-                        </div>
-                    `, 'success');
-
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('btn-secondary');
-                    submitBtn.classList.add('btn-primary');
-                    submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>XÁC NHẬN ĐẶT PHÒNG';
-                } else {
-                    showAvailabilityResult(`
-                        <div class="row">
-                            <div class="col-md-8">
-                                <strong>❌ Không thể đặt phòng!</strong><br>
-                                • Phòng đã có đơn trong khoảng thời gian này.<br>
-                                • <strong>Vui lòng chọn thời gian khác hoặc phòng khác!</strong>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
-                            </div>
-                        </div>
-                    `, 'danger');
-                    submitBtn.disabled = true;
-                    submitBtn.classList.remove('btn-primary');
-                    submitBtn.classList.add('btn-secondary');
-                }
-            })
-            .catch(() => {
-                showAvailabilityResult('Có lỗi khi kiểm tra khả năng đặt phòng. Vui lòng thử lại.', 'danger');
-                submitBtn.disabled = true;
-                submitBtn.classList.remove('btn-primary');
-                submitBtn.classList.add('btn-secondary');
-            })
-            .finally(() => {
-                checkAvailabilityBtn.disabled = false;
-                checkAvailabilityBtn.innerHTML = '<i class="bi bi-search me-2"></i>Kiểm tra khả năng đặt phòng';
-            });
-        });
         
         // Hàm hiển thị kết quả kiểm tra
         function showAvailabilityResult(message, type) {

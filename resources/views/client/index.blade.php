@@ -1,12 +1,6 @@
 @extends('layout.main')
 @section('main')
 <style>
-    #customGuest {
-        display: none;
-        margin-top: 10px;
-        height: 40px;
-        width: 100%;
-    }
 </style>
 
 @if (session('error'))
@@ -43,13 +37,12 @@
         </div>
         <div class="select-option">
             <label for="guest">{{ __('messages.guest') }}:</label>
-            <select onchange="tgg(this)" id="guest" name="guest">
-                <option value="2l1n">2 lớn+1 nhỏ</option>
-                <option value="4l3n">4 lớn 3 nhỏ</option>
-                <option value="custom">Nhập riêng</option>
+            <select id="guest" name="guest" required>
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
             </select>
-            <input class="form-control" type="text" id="customGuest" name="custom_guest"
-                placeholder="Nhập số người" min="1" />
         </div>
         <div class="select-option">
             <label for="search">Loại phòng:</label>
@@ -358,16 +351,6 @@
 </section>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
-    function tgg(select) {
-        const customInput = document.getElementById("customGuest");
-        if (select.value == "custom") {
-            customInput.style.display = "block";
-            customInput.required = true;
-        } else {
-            customInput.style.display = "none";
-            customInput.required = false;
-        }
-    }
 
     document.addEventListener("DOMContentLoaded", () => {
         const searchInput = document.getElementById('search');

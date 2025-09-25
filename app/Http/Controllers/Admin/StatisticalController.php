@@ -13,11 +13,83 @@ class StatisticalController extends Controller
      */
     public function index()
     {
-        // Get sample data for the chart
-        $chartData = $this->getSampleData();
-        return view("admin.statistical.index", compact('chartData'));
+        // Tổng thu nhập theo ngày/tuần/tháng/năm
+        $today = now();
+        $revenueDay = Statistical::whereDate('date', $today->toDateString())->sum('total_revenue');
+        $yesterday = $today->copy()->subDay();
+        $revenueDayPrev = Statistical::whereDate('date', $yesterday->toDateString())->sum('total_revenue');
+
+        $startOfWeek = now()->copy()->startOfWeek();
+        $endOfWeek = now()->copy()->endOfWeek();
+        $revenueWeek = Statistical::whereBetween('date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()])
+            ->sum('total_revenue');
+        $prevWeekStart = $startOfWeek->copy()->subWeek();
+        $prevWeekEnd = $endOfWeek->copy()->subWeek();
+        $revenueWeekPrev = Statistical::whereBetween('date', [$prevWeekStart->toDateString(), $prevWeekEnd->toDateString()])
+            ->sum('total_revenue');
+
+        $revenueMonth = Statistical::whereYear('date', $today->year)
+            ->whereMonth('date', $today->month)
+            ->sum('total_revenue');
+        $lastMonth = $today->copy()->subMonth();
+        $revenueMonthPrev = Statistical::whereYear('date', $lastMonth->year)
+            ->whereMonth('date', $lastMonth->month)
+            ->sum('total_revenue');
+
+        $revenueYear = Statistical::whereYear('date', $today->year)
+            ->sum('total_revenue');
+        $revenueYearPrev = Statistical::whereYear('date', $today->copy()->subYear()->year)
+            ->sum('total_revenue');
+
+        // Tính % tăng/giảm
+        $calcGrowth = function ($current, $prev) {
+            if ($prev == 0) {
+                if ($current == 0) return 0.0;
+                return 100.0; // từ 0 lên >0 coi như +100%
+            }
+            return (($current - $prev) / $prev) * 100.0;
+        };
+
+        $growthDay = $calcGrowth($revenueDay, $revenueDayPrev);
+        $growthWeek = $calcGrowth($revenueWeek, $revenueWeekPrev);
+        $growthMonth = $calcGrowth($revenueMonth, $revenueMonthPrev);
+        $growthYear = $calcGrowth($revenueYear, $revenueYearPrev);
+
+        // Chuỗi 14 ngày gần nhất cho sparkline
+        $labels14 = [];
+        $values14 = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $d = now()->copy()->subDays($i);
+            $labels14[] = $d->format('d/m');
+            $values14[] = (int) Statistical::whereDate('date', $d->toDateString())->sum('total_revenue');
+        }
+
+        return view(
+            "admin.statistical.index",
+            compact(
+                'revenueDay', 'revenueWeek', 'revenueMonth', 'revenueYear',
+                'growthDay', 'growthWeek', 'growthMonth', 'growthYear',
+                'labels14', 'values14'
+            )
+        );
     }
 
+    public function getSampleData()
+    {
+        $chart_data = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->copy()->subDays($i);
+            $chart_data[] = [
+                'date' => $date->toDateString(),
+                'day' => $date->format('d/m'),
+                'total_bookings' => rand(20, 100),
+                'total_customers' => rand(30, 150),
+                'total_revenue' => rand(500000, 2000000),
+                'rooms_occupied' => rand(10, 50),
+            ];
+        }
+        return $chart_data;
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -58,25 +130,7 @@ class StatisticalController extends Controller
         return response()->json($chart_data);
     }
     
-    private function getSampleData()
-    {
-        $sampleData = [];
-        $startDate = now()->subDays(29); // Last 30 days
-        
-        for ($i = 0; $i < 30; $i++) {
-            $date = $startDate->copy()->addDays($i);
-            $sampleData[] = [
-                'date' => $date->format('Y-m-d'),
-                'day' => $date->format('d/m'),
-                'total_bookings' => rand(5, 25),
-                'total_customers' => rand(8, 35),
-                'total_revenue' => rand(1000000, 5000000),
-                'rooms_occupied' => rand(10, 40),
-            ];
-        }
-        
-        return $sampleData;
-    }
+    // getSampleData() không còn sử dụng cho UI hiện tại
     
     private function convertDateFormat($dateString)
     {
