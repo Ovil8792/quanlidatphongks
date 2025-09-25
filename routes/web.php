@@ -53,6 +53,41 @@ Route::prefix("/")->group(function () {
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('client.update');
     Route::post("/vnpay-payment", [PaymentController::class, "processPayment"])->name("vnpay-payment");
     Route::post("/review/{id}", [UserRoom::class, "RV"])->name("client.p_review");
+    Route::get('/datphong/check-availability', [DathangController::class, 'checkAvailability'])->name('dathang.check');
+Route::get('/datphong/{id}', [DathangController::class, 'showForm'])->name('dathang.form');
+Route::post('/datphong/store', [DathangController::class, 'store'])->name('dathang.store');
+
+Route::post('/datphong/process-payment', [DathangController::class, 'processPayment'])->name('dathang.process-payment');
+Route::get('/datphong/success', [DathangController::class, 'paymentSuccess'])->name('dathang.success');
+// Support both GET (for redirects/back navigation) and POST (if used by forms)
+Route::get('/datphong/cancel', [DathangController::class, 'paymentCancel'])->name('dathang.cancel');
+
+// Routes thanh toán VNPay (đặt route cụ thể trước route động để tránh xung đột)
+Route::get('/payment/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');
+Route::get('/payment/vnpay/{bill_id}', [PaymentController::class, 'processVNPay'])->whereNumber('bill_id')->name('payment.vnpay');
+Route::get('/payment/history', [PaymentController::class, 'showPaymentHistory'])->name('payment.history');
+Route::get('/invoice/{bill_id}', [PaymentController::class, 'showInvoice'])->name('payment.invoice');
+Route::get('/payment/{bill_id}', [PaymentController::class, 'showPayment'])->whereNumber('bill_id')->name('payment.show');
+
+// Route test thanh toán
+Route::get('/test-payment', [PaymentController::class, 'testPayment'])->name('test.payment');
+Route::post('/test-payment/create', [PaymentController::class, 'testCreatePayment'])->name('test.create-payment');
+
+
+
+Route::get('/administrator/login', [AuthController::class, 'adminLogin'])->name('admin.login');
+Route::post('/administrator/Plogin', [AuthController::class, 'postAdminLogin'])->name('admin.auth');
+Route::get('/administrator/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
+
+
+
+Route::get('register', [AuthController::class, 'register'])->name('register');
+Route::post('register', [AuthController::class, 'postRegister'])->name('postRegister');
+
+Route::get('login', [AuthController::class, 'login'])->name('login');
+Route::post('login', [AuthController::class, 'postLogin'])->name('postLogin');
+
+Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 });
 // Route::get("/sapi", [SearchController::class, "autocompletingSearch"])->name("api.search");
 Route::get("/search", [SearchController::class, "search"])->name("search.pending");
@@ -73,8 +108,13 @@ Route::post('/api/booking-session/update', [App\Http\Controllers\BookingSessionC
 Route::post('/api/booking-session/clear', [App\Http\Controllers\BookingSessionController::class, 'clearBookingData'])->name('api.booking-session.clear');
 Route::post('/api/booking-session/save-temp', [App\Http\Controllers\BookingSessionController::class, 'saveTemp'])->name('api.booking-session.saveTemp');
 
-Route::prefix("/administrator")->group(function () {
-    Route::get("/", [AdminController::class, "index"])->name("admin.index");
+// Điều hướng /administrator: luôn đẩy về trang đăng nhập admin
+Route::get('/administrator', function () {
+    return redirect()->route('admin.login');
+})->name('admin.entry');
+
+Route::prefix("/administrator")->middleware('admin')->group(function () {
+    Route::get("/dashboard", [AdminController::class, "index"])->name("admin.index");
     Route::get("/amenities", [RoomAmenitiesController::class, "index"])->name("admin.amenities");
     Route::prefix("contact")->group(function () {
         Route::get("/", [ContactController::class, "index"])->name("admin.contact");
@@ -139,46 +179,7 @@ Route::prefix("/administrator")->group(function () {
     // Route::post("/testupload",[RoomController::class,"uptest"])->name("testing");
 });
 // Routes đặt phòng
-Route::get('/datphong/check-availability', [DathangController::class, 'checkAvailability'])->name('dathang.check');
-Route::get('/datphong/{id}', [DathangController::class, 'showForm'])->name('dathang.form');
-Route::post('/datphong/store', [DathangController::class, 'store'])->name('dathang.store');
 
-Route::post('/datphong/process-payment', [DathangController::class, 'processPayment'])->name('dathang.process-payment');
-Route::get('/datphong/success', [DathangController::class, 'paymentSuccess'])->name('dathang.success');
-Route::get('/datphong/cancel', [DathangController::class, 'paymentCancel'])->name('dathang.cancel');
-
-// Routes thanh toán VNPay (đặt route cụ thể trước route động để tránh xung đột)
-Route::get('/payment/vnpay/return', [PaymentController::class, 'vnpayReturn'])->name('payment.vnpay.return');
-Route::get('/payment/vnpay/{bill_id}', [PaymentController::class, 'processVNPay'])->whereNumber('bill_id')->name('payment.vnpay');
-Route::get('/payment/history', [PaymentController::class, 'showPaymentHistory'])->name('payment.history');
-Route::get('/invoice/{bill_id}', [PaymentController::class, 'showInvoice'])->name('payment.invoice');
-Route::get('/payment/{bill_id}', [PaymentController::class, 'showPayment'])->whereNumber('bill_id')->name('payment.show');
-
-// Route test thanh toán
-Route::get('/test-payment', [PaymentController::class, 'testPayment'])->name('test.payment');
-Route::post('/test-payment/create', [PaymentController::class, 'testCreatePayment'])->name('test.create-payment');
-
-// Route::get('/test-auth', function() {
-//     return [
-//         'user' => Auth::user(),
-//         'session' => session()->all(),
-//         'cookie' => request()->cookie(),
-//     ];
-// });
-
-Route::get('/administrator/login', [AuthController::class, 'adminLogin'])->name('admin.login');
-Route::post('/administrator/Plogin', [AuthController::class, 'postAdminLogin'])->name('admin.auth');
-Route::get('/administrator/logout', [AuthController::class, 'adminLogout'])->name('admin.logout');
-
-
-
-Route::get('register', [AuthController::class, 'register'])->name('register');
-Route::post('register', [AuthController::class, 'postRegister'])->name('postRegister');
-
-Route::get('login', [AuthController::class, 'login'])->name('login');
-Route::post('login', [AuthController::class, 'postLogin'])->name('postLogin');
-
-Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/test-auth', function () {
     return [
         'user' => Auth::user(),

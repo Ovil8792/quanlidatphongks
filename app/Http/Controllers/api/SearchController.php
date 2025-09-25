@@ -21,19 +21,19 @@ class SearchController extends Controller
             $query->whereIn('category_id', $request->room_types);
         }
 
-        // Lọc số người tối đa
+        // Lọc số người tối đa (giá trị cụ thể 1..4)
         if ($request->filled('max_guests') && is_array($request->max_guests) && count($request->max_guests) > 0) {
-            $query->where(function ($q) use ($request) {
-                foreach ($request->max_guests as $guestCount) {
-                    if ($guestCount == '2') {
-                        $q->orWhere('max_guests', '<=', 2);
-                    } elseif ($guestCount == '4') {
-                        $q->orWhereBetween('max_guests', [3, 4]);
-                    } elseif ($guestCount == '6') {
-                        $q->orWhere('max_guests', '>=', 5);
-                    }
-                }
-            });
+            // Chỉ nhận các giá trị 1..4 và chuyển sang số nguyên
+            $allowed = collect($request->max_guests)
+                ->map(fn($v) => (int)$v)
+                ->filter(fn($v) => in_array($v, [1,2,3,4]))
+                ->unique()
+                ->values()
+                ->all();
+
+            if (!empty($allowed)) {
+                $query->whereIn('max_guests', $allowed);
+            }
         }
 
         // Lọc khoảng giá nhập riêng (ưu tiên nếu có)
@@ -281,8 +281,8 @@ class SearchController extends Controller
     public function search(Request $request){
         $checkin = $request->input('date_in');
         $checkout = $request->input('date_out');
-        $people = $request->input('guest', "zero");
-        $customGuest = $request->input('custom_guest', null);
+        $people = (int) $request->input('guest', 0); // 1..4
+        $customGuest = null;
         $categoryId = $request->input('category_id', null);
 
         // Lưu dữ liệu vào session để sử dụng ở các trang khác
@@ -290,7 +290,6 @@ class SearchController extends Controller
             'date_in' => $checkin,
             'date_out' => $checkout,
             'guest' => $people,
-            'custom_guest' => $customGuest,
             'category_id' => $categoryId
         ];
         
@@ -308,6 +307,11 @@ class SearchController extends Controller
         $query = Room::query();
         if (!empty($categoryId)) {
             $query->where('category_id', $categoryId);
+        }
+
+        // Lọc theo số khách: phòng có sức chứa >= số khách yêu cầu
+        if ($people > 0) {
+            $query->where('max_guests', '>=', $people);
         }
 
         // Lọc phòng theo khoảng ngày: loại bỏ phòng trùng ngày với đơn đã thanh toán/đặt trước

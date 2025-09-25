@@ -38,6 +38,14 @@
     display: none !important;
     
 }
+/* Avatar tròn trong header */
+.header-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f3f4f6;
+}
 </style>
 <script>
 window.addEventListener("load", function(){
@@ -118,6 +126,16 @@ text-shadow:
 </div>
 <form style="margin-top: 20px;" action="{{ route('postLogin') }}" method="POST">
     @csrf
+    @if ($errors->has('wrong'))
+        <div class="alert alert-danger" role="alert">
+            {{ $errors->first('wrong') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger" role="alert">
+            {{ session('error') }}
+        </div>
+    @endif
     @if ($errors->any())
         <div class="alert alert-danger">
             @foreach ($errors->all() as $error)
@@ -129,7 +147,7 @@ text-shadow:
         <div class="input-group-prepend">
             <span class="input-group-text"><i class="fas fa-user"></i></span>
         </div>
-        <input type="text" class="form-control" placeholder="Email" name="email">
+        <input type="text" class="form-control" placeholder="Email" name="email" value="{{ old('email') }}">
         @if ($errors->has('email'))
             <span class="text-danger">{{ $errors->first('email') }}</span>
         @endif
@@ -159,26 +177,67 @@ text-shadow:
     <div class="dangky">
         <h2 id="register-title" style="text-align:center;margin:20px 0 40px 0;color:#333;">Đăng ký</h2>
     </div>
-    <form action="{{ route('postRegister') }}" method="POST">
+    <form action="{{ route('postRegister') }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @if ($errors->has('register_error'))
+            <div class="alert alert-danger" role="alert" style="margin-bottom:12px;">
+                {{ $errors->first('register_error') }}
+            </div>
+        @endif
         <div class="input-group form-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fas fa-user"></i></span>
             </div>
-            <input type="text" class="form-control" placeholder="Tên" name="name" required>
+            <input type="text" class="form-control" placeholder="Tên" name="name" value="{{ old('name') }}" required>
         </div>
+        @error('name')
+            <div class="text-danger" style="margin-top:-8px; margin-bottom:8px;">{{ $message }}</div>
+        @enderror
         <div class="input-group form-group">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
             </div>
-            <input type="email" class="form-control" placeholder="Email" name="email" required>
+            <input type="email" class="form-control" placeholder="Email" name="email" value="{{ old('email') }}" required>
         </div>
+        @error('email')
+            <div class="text-danger" style="margin-top:-8px; margin-bottom:8px;">{{ $message }}</div>
+        @enderror
+        <div class="input-group form-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Số điện thoại" name="phone" value="{{ old('phone') }}">
+        </div>
+        @error('phone')
+            <div class="text-danger" style="margin-top:-8px; margin-bottom:8px;">{{ $message }}</div>
+        @enderror
+        <div class="input-group form-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+            </div>
+            <input type="text" class="form-control" placeholder="Địa chỉ" name="address" value="{{ old('address') }}">
+        </div>
+        @error('address')
+            <div class="text-danger" style="margin-top:-8px; margin-bottom:8px;">{{ $message }}</div>
+        @enderror
         <div class="input-group form-group" style="margin-bottom: 20px;">
             <div class="input-group-prepend">
                 <span class="input-group-text"><i class="fas fa-key"></i></span>
             </div>
             <input type="password" class="form-control" placeholder="Mật khẩu" name="password" required>
         </div>
+        @error('password')
+            <div class="text-danger" style="margin-top:-8px; margin-bottom:8px;">{{ $message }}</div>
+        @enderror
+        <div class="input-group form-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-image"></i></span>
+            </div>
+            <input type="file" class="form-control" name="avatar" accept="image/*">
+        </div>
+        @error('avatar')
+            <div class="text-danger" style="margin-top:-8px; margin-bottom:8px;">{{ $message }}</div>
+        @enderror
         <div class="form-group d-flex justify-content-center">
             <input type="submit" value="Đăng ký" class="btn login_btn" style="background-color: #dfa974; color: white;">
         </div>
@@ -246,7 +305,6 @@ text-shadow:
                         <li><a href="#">Phòng Tổng Thống</a></li>
                     </ul>
                 </li>
-                <li class="linkcheck" id="news"><a href=""> {{ __("messages.News") }} </a></li>
                 <li class="linkcheck" id="contact"><a href="">Contact</a></li>
             </ul>
         </nav>
@@ -315,16 +373,16 @@ text-shadow:
                 </div>
 @if(empty(Auth::user())||Auth::user() == [])
 <div class="user-dropdown" style="padding:5px;margin:auto; width: 15%; text-align: center; position: relative;">
-<a href="#" id="login-p"><img width="25%" src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" style="cursor: pointer;"></a>
+<a href="#" id="login-p"><img src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" class="header-avatar" style="cursor: pointer;"></a>
 </div>
 @else
                 <div class="user-dropdown" style="padding:5px;margin:auto; width: 15%; text-align: center; position: relative;">
                    {{-- điều kiện nếu người dùng không có avatar --}}
                     @if(empty(Auth::user()->avatar) || Auth::user()->avatar==="" )
-    <img width="25%" src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" style="cursor: pointer;">
+    <img src="{{ asset(url('')) }}/img/avt.svg" alt="Avatar" id="avatarToggle" class="header-avatar" style="cursor: pointer;">
    {{-- Điều kiện nếu có avatar --}}
     @else
-        <img src="{{ asset(url("")) }}/upload/{{ Auth::user()->avatar }}" alt="">
+        <img src="{{ asset(url("")) }}/upload/{{ Auth::user()->avatar }}" alt="Avatar" id="avatarToggle" class="header-avatar" style="cursor: pointer;">
     @endif
     <div class="user-menu" id="userMenu" style="
         display: none;
@@ -372,9 +430,8 @@ text-shadow:
                                         </ul>
                                     </li>
                                     <li class="linkcheck" id="about"><a href="{{ route("client.about") }}">{{ __("messages.AboutUs") }}</a></li>
-                                    <li class="linkcheck" id="news"><a href="./blog.html">{{ __("messages.News") }}</a></li>
                                     <li class="linkcheck" id="contact"><a href="{{ route("client.contact") }}">{{ __("messages.Contact") }}</a></li>
-                                    <li class="linkcheck" id="other"><a href="./pages.html">{{ __("messages.Pages") }}</a></li>
+                                    <li class="linkcheck" id="other"><a href="#">{{ __("messages.Pages") }}</a></li>
                                 </ul>
                             </nav>
                             <!-- <div class="nav-right search-switch">

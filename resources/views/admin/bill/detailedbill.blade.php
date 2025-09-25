@@ -80,14 +80,18 @@
                 @php $tong = 0; @endphp
                 @forelse ($bill->details as $index => $detail)
                   @php
-                    $thanhtien = $detail->room_rate * $detail->quantity;
+                    $rate = (int) ($detail->room_rate ?? 0);
+                    $cin = \Carbon\Carbon::parse($bill->checkin)->startOfDay();
+                    $cout = \Carbon\Carbon::parse($bill->checkout)->startOfDay();
+                    $nights = max(1, (int) $cin->diffInDays($cout, true));
+                    $thanhtien = $rate * $nights;
                     $tong += $thanhtien;
                   @endphp
                   <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $detail->room->name ?? 'N/A' }}</td>
                     <td>{{ $detail->room->category->name ?? 'Không rõ' }}</td>
-                    <td>{{ number_format($detail->room_rate) }} đ</td>
+                    <td>{{ number_format($rate) }} đ</td>
                     <td>{{ number_format($thanhtien) }} đ</td>
                   </tr>
                 @empty

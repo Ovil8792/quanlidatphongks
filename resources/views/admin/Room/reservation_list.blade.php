@@ -46,7 +46,7 @@
                                         <td>
                                             @if($reservation->status == 'pending')
                                                 <span class="badge bg-warning">Chờ thanh toán</span>
-                                            @elseif($reservation->status == 'paid')
+                                            @elseif($reservation->status == 'confirmed')
                                                 <span class="badge bg-success">Đã thanh toán</span>
                                             @elseif($reservation->status == 'cancelled')
                                                 <span class="badge bg-danger">Đã hủy</span>

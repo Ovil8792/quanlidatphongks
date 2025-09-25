@@ -9,6 +9,7 @@ use App\Models\Room;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class RoomController extends Controller
 {
@@ -57,11 +58,12 @@ class RoomController extends Controller
     {
         $room = Room::findOrFail($id);
         $imglist = khoanh::where("roomid", $id)->get();
+        $reviews = Review::with('user')->where('roomid', $id)->latest()->get();
         
         // Lấy dữ liệu đặt phòng từ session
         $bookingData = session('booking_data', []);
         
-        return view("client.room.detail", compact("room", "imglist", "bookingData"));
+        return view("client.room.detail", compact("room", "imglist", "bookingData", "reviews"));
     }
 
     /**
@@ -88,7 +90,13 @@ class RoomController extends Controller
         //
     }
     public function RV(Request $request, int $roomid){
-       
+        // Chỉ cho phép người dùng đã đăng nhập đánh giá
+        if (!Auth::check()) {
+            return redirect()->back()
+                ->with('error', 'Vui lòng đăng nhập để đánh giá phòng.')
+                ->with('auth_modal', 'login');
+        }
+
         $cmt = $request->comment;
         $rtype = $request->rate;
         if($rtype == "number"){
@@ -101,7 +109,7 @@ class RoomController extends Controller
         }
 
         Review::create([
-            "userid" => session("user")->id??1,
+            "userid" => Auth::id(),
             "roomid" => $roomid,
             "rating" => $rating,
             "comment" => $cmt,

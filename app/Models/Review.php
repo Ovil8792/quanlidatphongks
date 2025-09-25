@@ -12,7 +12,13 @@ class Review extends Model
         'rating',
         'comment',
     ];
-    public function Review()  {
-        return $this->belongsTo(Room::class);
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'roomid');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'userid');
     }
 }

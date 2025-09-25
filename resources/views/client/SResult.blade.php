@@ -341,16 +341,20 @@
                 <div class="filter-group">
                     <h6><i class="fa fa-users me-2"></i>Số người tối đa</h6>
                     <div>
+                        <input type="checkbox" name="max_guests[]" value="1" id="guests_1">
+                        <label for="guests_1">1 người</label>
+                    </div>
+                    <div>
                         <input type="checkbox" name="max_guests[]" value="2" id="guests_2">
                         <label for="guests_2">2 người</label>
                     </div>
                     <div>
-                        <input type="checkbox" name="max_guests[]" value="4" id="guests_4">
-                        <label for="guests_4">4 người</label>
+                        <input type="checkbox" name="max_guests[]" value="3" id="guests_3">
+                        <label for="guests_3">3 người</label>
                     </div>
                     <div>
-                        <input type="checkbox" name="max_guests[]" value="6" id="guests_6">
-                        <label for="guests_6">6+ người</label>
+                        <input type="checkbox" name="max_guests[]" value="4" id="guests_4">
+                        <label for="guests_4">4 người</label>
                     </div>
                 </div>
 
